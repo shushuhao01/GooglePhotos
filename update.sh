@@ -129,6 +129,9 @@ fi
 
 echo -e "  ${YELLOW}[5.2] 构建 admin 管理后台 (vite build)...${NC}"
 cd "$PROJECT_DIR/admin"
+# 清理宝塔站点在 dist 内遗留的 PHP 安全文件，否则 Vite emptyDir 清空目录时会
+# 把 .user.ini 这类文件当目录扫导致 ENOTDIR 构建失败。纯静态 Vue 站不需要它们。
+rm -f "$PROJECT_DIR/admin/dist/.user.ini" "$PROJECT_DIR/admin/dist/.php" 2>/dev/null || true
 if npm run build > /tmp/admin-build.log 2>&1; then
   tail -3 /tmp/admin-build.log
   echo -e "  ${GREEN}[OK] admin 构建完成${NC}"
