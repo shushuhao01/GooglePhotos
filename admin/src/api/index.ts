@@ -1,6 +1,26 @@
 import { ElMessage } from 'element-plus';
 
-const API = (localStorage.getItem('pgx_api_base') || 'http://localhost:8787').replace(/\/$/, '') + '/api/v1';
+/* 后台服务地址解析优先级：
+ * 1. localStorage 用户手动设置（pgx_api_base）
+ * 2. 构建时环境变量 VITE_API_BASE
+ * 3. 自动推导：当前访问后台的域名（同域反向代理最常见）
+ * 4. 兜底 localhost:8787（本地开发）
+ */
+function resolveApiBase(): string {
+  const stored = localStorage.getItem('pgx_api_base');
+  if (stored) return stored.replace(/\/$/, '');
+  const envBase = (import.meta as any).env?.VITE_API_BASE;
+  if (envBase) return String(envBase).replace(/\/$/, '');
+  try {
+    const { protocol, hostname, port } = window.location;
+    // 后台与 API 同域反代：如 https://admin.example.com/api/v1
+    return `${protocol}//${hostname}${port ? ':' + port : ''}`;
+  } catch {
+    return 'http://localhost:8787';
+  }
+}
+
+const API = resolveApiBase() + '/api/v1';
 
 export function getApiBase(): string {
   return API.replace('/api/v1', '');
