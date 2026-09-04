@@ -14,6 +14,7 @@ import billingRoutes from './routes/billing.js';
 import zipRoutes from './routes/zip.js';
 import proxyRoutes from './routes/proxy.js';
 import adminRoutes from './routes/admin.js';
+import publicRoutes from './routes/public.js';
 import { rateLimit } from './middleware/rateLimit.js';
 import { systemConfigService } from './services/AdminService.js';
 import { fail } from './utils/response.js';
@@ -58,6 +59,7 @@ app.use('/api/v1', billingRoutes);
 app.use('/api/v1', zipRoutes);
 app.use('/api/v1', proxyRoutes);
 app.use('/api/v1', adminRoutes);
+app.use('/api/v1', publicRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

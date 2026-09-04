@@ -13,6 +13,7 @@
       <el-table-column prop="uploadQuota" label="上传" width="80" />
       <el-table-column prop="downloadQuota" label="下载" width="80" />
       <el-table-column prop="zipQuota" label="ZIP" width="80" />
+      <el-table-column label="单次上限" width="90"><template #default="{row}">{{ fmtMB(row.maxBytes) }}</template></el-table-column>
       <el-table-column label="状态" width="90"><template #default="{row}"><el-tag :type="row.isActive?'success':'info'" size="small">{{ row.isActive?'启用':'停用' }}</el-tag></template></el-table-column>
       <el-table-column label="操作" width="150" fixed="right">
         <template #default="{row}">
@@ -32,6 +33,7 @@
       <el-form-item label="周期"><el-select v-model="form.billingPeriod"><el-option label="月付" value="month"/><el-option label="年付" value="year"/><el-option label="永久" value="lifetime"/><el-option label="一次性" value="one_time"/></el-select></el-form-item>
       <el-form-item label="上传/下载/ZIP"><el-input-number v-model="form.uploadQuota" :min="0" /><span class="sep">/</span><el-input-number v-model="form.downloadQuota" :min="0" /><span class="sep">/</span><el-input-number v-model="form.zipQuota" :min="0" /></el-form-item>
       <el-form-item label="单次张数"><el-input-number v-model="form.maxItems" :min="1" /></el-form-item>
+      <el-form-item label="单次大小(MB)"><el-input-number v-model="form.maxBytesMB" :min="0" :step="1" /></el-form-item>
       <el-form-item label="并发"><el-input-number v-model="form.concurrency" :min="1" :max="10" /></el-form-item>
       <el-form-item label="试用(天)"><el-input-number v-model="form.trialDays" :min="0" /></el-form-item>
     </el-form>
@@ -47,20 +49,23 @@ import { ElMessage } from 'element-plus';
 const plans = ref<any[]>([]);
 const loading = ref(false);
 const dialog = ref(false);
-const form = ref<any>({ code: '', name: '', currency: 'CNY', priceCents: 0, billingPeriod: 'month', uploadQuota: 1, downloadQuota: 1, zipQuota: 1, maxItems: 10, concurrency: 1, trialDays: 0 });
+const form = ref<any>({ code: '', name: '', currency: 'CNY', priceCents: 0, billingPeriod: 'month', uploadQuota: 1, downloadQuota: 1, zipQuota: 1, maxItems: 10, maxBytesMB: 200, concurrency: 1, trialDays: 0 });
 
 async function load() {
   loading.value = true;
   try { const d: any = await req('/admin/plans'); plans.value = d.plans || []; }
   catch (e: any) { ElMessage.error(e.message); } finally { loading.value = false; }
 }
+function fmtMB(mb: number) { return (Number(mb) / 1048576).toFixed(0) + ' MB'; }
 function openEdit(row?: any) {
-  form.value = row ? { ...row } : { code: '', name: '', currency: 'CNY', priceCents: 0, billingPeriod: 'month', uploadQuota: 1, downloadQuota: 1, zipQuota: 1, maxItems: 10, concurrency: 1, trialDays: 0 };
+  if (row) form.value = { ...row, maxBytesMB: Math.round(Number(row.maxBytes || 0) / 1048576) };
+  else form.value = { code: '', name: '', currency: 'CNY', priceCents: 0, billingPeriod: 'month', uploadQuota: 1, downloadQuota: 1, zipQuota: 1, maxItems: 10, maxBytesMB: 200, concurrency: 1, trialDays: 0 };
   dialog.value = true;
 }
 async function save() {
   const isNew = !form.value.code || plans.value.every(p => p.code !== form.value.code);
-  const payload = { ...form.value };
+  const { maxBytesMB, ...rest } = form.value;
+  const payload = { ...rest, maxBytes: Math.round(Number(maxBytesMB || 0) * 1048576) };
   try {
     if (isNew) await req('/admin/plans', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     else await req('/admin/plans/' + form.value.code, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
