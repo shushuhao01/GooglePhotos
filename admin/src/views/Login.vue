@@ -9,12 +9,12 @@
         <el-tab-pane label="管理员账号" name="cred">
           <el-form @submit.prevent>
             <el-form-item>
-              <el-input v-model="username" placeholder="管理员账号（默认 admin）" size="large" @keyup.enter="doCredLogin">
+              <el-input v-model="username" placeholder="管理员账号" size="large" @keyup.enter="doCredLogin">
                 <template #prefix><el-icon><User /></el-icon></template>
               </el-input>
             </el-form-item>
             <el-form-item>
-              <el-input v-model="password" type="password" placeholder="密码（默认 admin123）" size="large" show-password @keyup.enter="doCredLogin">
+              <el-input v-model="password" type="password" placeholder="请输入密码" size="large" show-password @keyup.enter="doCredLogin">
                 <template #prefix><el-icon><Lock /></el-icon></template>
               </el-input>
             </el-form-item>
@@ -35,7 +35,7 @@
       </el-tabs>
 
       <div class="tip">
-        默认管理员账号：<b>admin / admin123</b>（可在「系统设置 → 管理员账号」修改）。<br>
+        管理员账号与密码请在「系统设置 → 管理员账号」中查看或修改。<br>
         管理员邮箱登录需在「系统设置 → 管理员邮箱」中配置，修改后需退出重新登录。
       </div>
     </div>
