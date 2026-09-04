@@ -102,13 +102,27 @@ echo -e "${YELLOW}[5] 构建项目...${NC}"
 
 echo -e "  ${YELLOW}[5.1] 构建 backend (tsc)...${NC}"
 cd "$PROJECT_DIR/backend"
-npm run build 2>&1 | tail -3
-echo -e "  ${GREEN}[OK] backend 构建完成${NC}"
+if npm run build > /tmp/backend-build.log 2>&1; then
+  tail -3 /tmp/backend-build.log
+  echo -e "  ${GREEN}[OK] backend 构建完成${NC}"
+else
+  echo -e "  ${RED}[X] backend 构建失败，日志:${NC}"
+  tail -20 /tmp/backend-build.log
+  echo -e "  ${YELLOW}[!] 请先解决上述构建错误，再重新运行本脚本${NC}"
+  exit 1
+fi
 
 echo -e "  ${YELLOW}[5.2] 构建 admin 管理后台 (vite build)...${NC}"
 cd "$PROJECT_DIR/admin"
-npm run build 2>&1 | tail -3
-echo -e "  ${GREEN}[OK] admin 构建完成${NC}"
+if npm run build > /tmp/admin-build.log 2>&1; then
+  tail -3 /tmp/admin-build.log
+  echo -e "  ${GREEN}[OK] admin 构建完成${NC}"
+else
+  echo -e "  ${RED}[X] admin 构建失败，日志:${NC}"
+  tail -20 /tmp/admin-build.log
+  echo -e "  ${YELLOW}[!] 请先解决上述构建错误，再重新运行本脚本${NC}"
+  exit 1
+fi
 
 echo -e "  ${YELLOW}[5.3] web-image-uploader 扩展（源码无构建，仅语法校验）...${NC}"
 cd "$PROJECT_DIR/web-image-uploader"
