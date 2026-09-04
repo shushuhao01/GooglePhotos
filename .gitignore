@@ -1,0 +1,45 @@
+# ===== Node / npm =====
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+package-lock.json.tmp
+
+# ===== 构建产物 =====
+dist/
+build/
+*.tsbuildinfo
+
+# ===== 环境与密钥 =====
+.env
+.env.local
+.env.production
+.env.*.local
+*.pem
+*.key
+*.crt
+
+# ===== 日志与临时文件 =====
+logs/
+*.log
+.DS_Store
+Thumbs.db
+*.pid
+
+# ===== IDE / 编辑器 =====
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ===== 本地备份（非源码，不入库） =====
+web-image-uploader-backup-*/
+web-image-uploader-backup-*.zip
+
+# ===== 其他 =====
+coverage/
+.nyc_output/
+*.bak

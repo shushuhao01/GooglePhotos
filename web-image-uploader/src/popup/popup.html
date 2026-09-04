@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="STwgQ8w3iouY2j6CtOgFbj">
+<head data-page-node-id="hxNmFm2qZyLsl92qXkwKEW">
+<meta charset="utf-8" data-page-node-id="ZkSXAiD3HVZWipyDJ9zKBf">
+<title>网页图片上传器 · Web Image Uploader</title>
+<link rel="stylesheet" href="popup.css" data-page-node-id="HsVxpGEQvBbxPTcnZYkX84">
+</head>
+<body data-page-node-id="xwUJp0JlHYdHfUhb0z7Div">
+  <header class="top" data-page-node-id="6TosJCrbCOW2yIyOdTz2nH">
+    <div class="brand" data-page-node-id="NqUDVMAB45yIAGfG6lIuME">
+      <span class="logo" data-page-node-id="7KmteCoXbODGArysu2Clpb">◫</span>
+      <div class="brand-text" data-page-node-id="DQzGSPO8ewHeUcNR8mIR2H">
+        <strong id="brand-name" data-page-node-id="AA22CWh4gPoIik2SzcilS2">网页图片上传器</strong>
+        <span id="mock-badge" class="badge mock hidden" data-page-node-id="tMe6aLp9st99VeXx1GrLGp">MOCK</span>
+      </div>
+    </div>
+    <div class="top-actions" data-page-node-id="pouqfU1PXVLSiYPaXrSFfj">
+      <button id="btn-settings" class="icon-btn" title="设置" data-act="settings" data-page-node-id="5NxQzgAdTRtQYNvmtkcKgR">⚙</button>
+      <button id="btn-account" class="icon-btn" title="Google 账号" data-page-node-id="sS3wIpl2lZ1324PGCYOCQ8">👤</button>
+    </div>
+  </header>
+
+  <nav class="tabs" data-page-node-id="z6hAyFbwb13D7hBwD7ORQ5">
+    <button class="tab active" data-tab="images" data-page-node-id="fFp0MCRoymrJOSHKxi1UlO">图片选择</button>
+    <button class="tab" data-tab="tasks" data-page-node-id="ReKiXSy20ZlX1IgcBrxAX2">上传任务<span id="task-count-badge" class="count-badge hidden" data-page-node-id="posTN2RpX2tPA7a4DSmUGU"></span></button>
+    <button class="tab" data-tab="history" data-page-node-id="zSnI8jC2jSxrZoK6fAq1ZQ">历史记录</button>
+  </nav>
+
+  <!-- ===================== 会员/额度 ===================== -->
+  <div id="billing-bar" class="billing-bar hidden">
+    <div class="billing-left">
+      <span id="quota-label" class="quota-label">本月上传额度</span>
+      <span id="quota-value" class="quota-value">—</span>
+    </div>
+    <div class="billing-right">
+      <button id="btn-upgrade" class="mini-btn primary">升级</button>
+      <button id="btn-billing-login" class="mini-btn">登录</button>
+    </div>
+  </div>
+
+  <!-- ===================== 图片选择 ===================== -->
+  <section id="view-images" class="view" data-page-node-id="dvcJqHnnL7NNh1YR9vEOXq">
+    <div id="auth-warning" class="banner warn hidden" data-page-node-id="pllHYyJ4DdmZXPuZPTQ7Du">
+      <span data-page-node-id="ldHqtNbakEwCIDMFkaHZa5">尚未绑定 Google 账号，上传前需登录。</span>
+      <button id="btn-auth-warning" class="mini-btn" data-page-node-id="f4Xv4ZLqnhZASDFQL7Z6uT">立即绑定</button>
+    </div>
+
+    <div class="scanbar" data-page-node-id="GL3bbG5bp0yAhzskxGjw5Q">
+      <button id="btn-scan" class="btn primary small" data-page-node-id="SADLj8SWiuQJJ3VJ216BLx">⟳ 扫描图片</button>
+      <select id="sel-filter" class="small" title="筛选" data-page-node-id="IQR35rj8CfE8rxP2Rzo9sD">
+        <option value="all" data-page-node-id="DRKh2xbI2OUc4J8y9vkNr6">全部图片</option>
+        <option value="content" data-page-node-id="52nZYpnSXmcIZf7J9DLFAF">内容图（隐去头像/图标/广告）</option>
+        <option value="hd" data-page-node-id="SCekH9oJCgAPMTA9QYdMRL">仅高清候选</option>
+        <option value="thumb" data-page-node-id="RBQZ2QF0NEyW2N1SVUgolg">疑似缩略图</option>
+        <option value="dup" data-page-node-id="0SQWUXJ7E3irGvFDq87GfR">重复图片</option>
+        <option value="decor" data-page-node-id="ygkrovhDjR0z9RLY9udzFB">仅装饰/头像/广告</option>
+      </select>
+      <select id="sel-sort" class="small" title="排序" data-page-node-id="EMlmur2sP8eE0oHf7gpSjv">
+        <option value="page" data-page-node-id="kHALjw6273BO6z6oskNimR">页面顺序</option>
+        <option value="res-desc" data-page-node-id="i6wG4dPNTawMHkB0J4D2Ej">分辨率 大→小</option>
+        <option value="res-asc" data-page-node-id="DeiCbS73xesEs3GJohfCxf">分辨率 小→大</option>
+      </select>
+      <input id="inp-search" class="small grow" type="search" placeholder="搜索域名/类型…" data-page-node-id="f6qyZAbeyD7YXZehMnVwQn">
+    </div>
+
+    <div class="selectbar" data-page-node-id="B5fFCUt855pLa5kDLDdqZX">
+      <button class="mini-btn" data-sel="all" data-page-node-id="xCks7TVIvMRwCrFynCx7BN">全选</button>
+      <button class="mini-btn" data-sel="none" data-page-node-id="jFjnxDKOCCKXsP3GOVgSCS">清空</button>
+      <button class="mini-btn" data-sel="invert" data-page-node-id="mTo44mEj0BZWz5NsU7twGi">反选</button>
+      <button class="mini-btn" data-sel="hd" data-page-node-id="EtuDqIsTdjnUXwTSeag3ij">仅高清</button>
+      <span class="spacer"></span>
+      <div class="thumb-toggle" title="缩略图显示方式">
+        <button id="thumb-mode-cover" class="active" title="标准缩略图">▧</button>
+        <button id="thumb-mode-contain" title="完整比例缩略图">▤</button>
+      </div>
+      <div class="view-toggle" title="切换视图">
+        <button id="view-btn-list" class="active" title="列表视图">☰</button>
+        <button id="view-btn-grid" title="网格视图">▦</button>
+      </div>
+      <span id="sel-summary" class="summary" data-page-node-id="ZeEESzwqXi4E8VFCH1XG86">已选 0 张</span>
+    </div>
+
+    <div id="scan-state" class="scan-state" data-page-node-id="OfedcJpwR8QuYFZwDdT70p">
+      <span id="scan-msg" data-page-node-id="LMZwtzFXLtHhBkulJsYbMf">点击“扫描图片”开始</span>
+      <span id="scan-meta" data-page-node-id="wEsX1U6uFRfNYChPiGx7OV"></span>
+    </div>
+
+    <ul id="img-list" class="img-list" data-page-node-id="aR0duTTYVQWlXuENvhom1B"></ul>
+    <div id="img-empty" class="empty hidden" data-page-node-id="sPsQOS1emlFVOUvfRud5E9">没有符合条件的图片</div>
+
+    <footer class="dock" data-page-node-id="r1sgB3EyYOwz6PLqkjmQah">
+      <div class="dock-row">
+        <button id="btn-upload" class="btn primary" disabled data-page-node-id="3QNndmqqmx3IBPsfARrnyv">上传选中图片</button>
+        <button id="btn-upload-one" class="btn" disabled data-page-node-id="zZxr0KlMjUORheXUrttpS4">下载选中</button>
+        <button id="btn-download-zip" class="btn zip-btn" disabled title="将选中图片打包为 ZIP 下载" data-page-node-id="downloadZip">ZIP下载</button>
+      </div>
+      <div class="dock-row">
+        <span class="dock-label">上传目标</span>
+        <div id="album-dock" class="album-dock" data-page-node-id="uRAlCX2KUqok57DoAFBVYB">
+          <select id="album-target" class="small" title="上传目标相册" data-page-node-id="drGew47kkzIoi0SONwYDcf">
+            <option value="auto" data-page-node-id="gWN9YBQMfou3BpxvGEVvhK">自动新建相册</option>
+            <option value="none" data-page-node-id="2AvvS61M8mFb9CZDAprIlc">放相册库</option>
+            <option value="select" data-page-node-id="UEi2PDYZkzEPQ28IaSr3Fu">加入指定相册…</option>
+          </select>
+          <input id="album-auto-name" class="album-auto-name" type="text" maxlength="200" placeholder="可选名称（留空默认）" title="自动新建相册名称；留空按模板生成" data-page-node-id="autoAlbumNameInput">
+          <select id="album-pick" class="small hidden" title="选择已有相册" data-page-node-id="djIsIHG9DoY3XOtXedpbKW"></select>
+          <button id="btn-refresh-albums" class="mini-btn hidden" title="刷新相册列表" data-page-node-id="NHrU37eYhmMJRwbXD0VYKN">⟳</button>
+        </div>
+      </div>
+      <span id="albums-hint" class="hint album-hint" title="受 Google API 政策限制，只能选择本插件创建的相册" data-page-node-id="vQrACCexp0vUicvqFAuwpz"></span>
+    </footer>
+  </section>
+
+  <!-- ===================== 上传任务 ===================== -->
+  <section id="view-tasks" class="view hidden" data-page-node-id="v75NWwjDl7qnz2Mh5VR7sA">
+    <div id="task-empty" class="empty" data-page-node-id="416ug5PDgrvGi4Wp2rG9OP">暂无进行中的任务</div>
+    <div id="task-detail" class="hidden" data-page-node-id="2GzCLGJGlOuwmqjD8aMV6z">
+      <div class="task-head" data-page-node-id="PQJ3nKBGMgYDQWAYCDg4Zn">
+        <div class="task-title-wrap" data-page-node-id="RNloBLmFxOSyZ3n8RLcPQP">
+          <strong id="task-name" data-page-node-id="YnaGWOm97Vqx7izQt9OMas">任务</strong>
+          <span id="task-status" class="chip" data-page-node-id="ot0R931HMHa4YUHsUKg9Gh">排队中</span>
+        </div>
+        <div class="task-ctrls" data-page-node-id="WBUYO1SV959fKpQGuA73WN">
+          <button id="btn-pause" class="mini-btn" data-page-node-id="0HwV6PtnRKvjTpzupsYq6X">暂停</button>
+          <button id="btn-resume" class="mini-btn hidden" data-page-node-id="TtRufRqPvESUjTsfanA5PD">继续</button>
+          <button id="btn-cancel" class="mini-btn danger" data-page-node-id="5zGZEAWZQA6nxrQrMBcYwp">取消</button>
+          <button id="btn-retry-failed" class="mini-btn" data-page-node-id="4gw5J9P5OSbVEMK4sirZ4a">重试失败</button>
+        </div>
+      </div>
+      <div class="progress-wrap" data-page-node-id="QXQfA8yD8pOLVEfrjGak0b">
+        <div class="progress" data-page-node-id="JzG0CVbkkfbMZlp9vpgrcL"><div id="task-progress" class="progress-inner" data-page-node-id="YeG5y6kEz3P4Vp4HNkYQZ7"></div></div>
+        <div class="progress-text" id="task-progress-text" data-page-node-id="jFUmPLkAO88q3p6hvn2XcE"></div>
+      </div>
+      <div class="task-stats" id="task-stats" data-page-node-id="5NrRKsy6c6uH4anCr7bRmj"></div>
+      <div class="phase-row" id="task-phase" data-page-node-id="EkVcGDDmFq1aMmUgZDGvhH"></div>
+      <ul id="task-items" class="task-items" data-page-node-id="KyE6Krdz0pWtXnUSVYBoTa"></ul>
+    </div>
+  </section>
+
+  <!-- ===================== 历史记录 ===================== -->
+  <section id="view-history" class="view hidden" data-page-node-id="ArEO03dTfcWcvWBveOkjty">
+    <div class="scanbar" data-page-node-id="wjfo5JgwL6AxaRquQvXDmP">
+      <button id="btn-clear-history" class="mini-btn danger" data-page-node-id="ooNmY67BQjuwjrPnqg5ISs">清空历史</button>
+      <span id="history-hint" class="hint" data-page-node-id="BNRHUqwnMZhZGQfLQ0CwPn"></span>
+    </div>
+    <div id="history-empty" class="empty" data-page-node-id="LBAxNd5EkHYAtWo2r5FWiy">暂无历史记录</div>
+    <ul id="history-list" class="history-list" data-page-node-id="NKjBpHDx9Y9sKXbCe90XTj"></ul>
+  </section>
+
+  <div id="toast" class="toast hidden" data-page-node-id="I2WNUsI4jBSsZgf0ocAg20"></div>
+  <div id="upgrade-modal" class="modal-mask hidden" role="dialog" aria-modal="true">
+    <div class="upgrade-box">
+      <button id="upgrade-close" class="preview-close">×</button>
+      <h3 id="upgrade-title">会员升级</h3>
+      <div id="upgrade-login" class="upgrade-login">
+        <div class="row">
+          <input id="billing-email" type="text" placeholder="产品账号邮箱">
+        </div>
+        <div class="row">
+          <input id="billing-password" type="password" placeholder="密码（注册时设置，可留空用开发者登录）">
+        </div>
+        <div class="row">
+          <button id="btn-billing-do-login" class="mini-btn primary">登录</button>
+          <button id="btn-billing-open-options" class="mini-btn">配置后端</button>
+        </div>
+        <p id="billing-login-msg" class="tip"></p>
+      </div>
+      <div id="upgrade-plans" class="upgrade-plans hidden">
+        <ul id="upgrade-plan-list" class="plan-list"></ul>
+        <p id="upgrade-status" class="hint"></p>
+      </div>
+    </div>
+  </div>
+  <div id="image-preview" class="image-preview hidden" role="dialog" aria-modal="true">
+    <button id="preview-max" class="preview-max" title="最大化">⛶</button><button id="preview-close" class="preview-close">×</button><button id="preview-prev" class="preview-nav prev">‹</button>
+    <img id="preview-image" alt="图片预览"><button id="preview-next" class="preview-nav next">›</button>
+    <div class="preview-toolbar"><button id="preview-play" class="mini-btn">▶ 自动播放</button><span id="preview-index"></span></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

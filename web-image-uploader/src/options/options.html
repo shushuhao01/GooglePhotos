@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="InsmU09CLj6i7PS8KdWvu8">
+<head data-page-node-id="CmxOuy2reSFqk8bpMgMS7f">
+<meta charset="utf-8" data-page-node-id="zRU5786rPqRhmDflIZ1H6c">
+<title>设置 · 网页图片上传器 · Web Image Uploader</title>
+<link rel="stylesheet" href="options.css" data-page-node-id="SbZDPgLrbKk588XNXWs0Eo">
+</head>
+<body data-page-node-id="ms0wCBXFTSn1W7erkNSbXV">
+<div class="page" data-page-node-id="gAUqEGaC3c8Ox1QHEE4ZaQ">
+  <header data-page-node-id="EghPFyXJ4LFN1isODXgfoe">
+    <h1 data-page-node-id="L0DfSVE5rKwkskYSrZXa7E">网页图片上传器 · Web Image Uploader — 设置</h1>
+    <p class="sub" data-page-node-id="FVPhRIZdu7o0i9oC52RRAr">扫描、批量上传、下载并 ZIP 打包网页图片。设置修改后自动保存。</p>
+  </header>
+
+  <section class="card" data-page-node-id="xq6HQsnpjjCiouwgPOWmYk">
+    <h2 data-page-node-id="KWg0efopSCVY0qDeHVzJ27">Google 账号与授权</h2>
+    <div class="row" data-page-node-id="qgCRBgBch8Fez8UVEagdW0">
+      <label for="auth-method" data-page-node-id="9SiHeBAjoeobws9qqYtCSD">授权方式</label>
+      <div class="field" data-page-node-id="r4OiFHzUZeGqstn7MBDiDg">
+        <select id="auth-method" data-page-node-id="lnzpXzkaC8MwPqv8r6NfCd">
+          <option value="webauth" data-page-node-id="coYLrZDnINDfZGWbJ5d1hP">launchWebAuthFlow + PKCE（可选任意 Google 账号，推荐）</option>
+          <option value="chromeidentity" data-page-node-id="6XJhzNqo7363xFgHE1jiUc">chrome.identity（跟随浏览器登录账号）</option>
+        </select>
+      </div>
+    </div>
+    <div class="row" id="row-clientid" data-page-node-id="chamu8uuee6jsNKHMfHRaE">
+      <label for="auth-clientid" data-page-node-id="M8ARf61sqa9SOS7NG2UMrp">OAuth Client ID</label>
+      <div class="field" data-page-node-id="3m3RpDIN0FeZKKu49C6dt0">
+        <input id="auth-clientid" type="text" placeholder="xxxxxxxx.apps.googleusercontent.com" data-page-node-id="dPy4APGVJiJKjxl7AQRdV4">
+        <p class="tip" data-page-node-id="k8JiMJaMOuD7fq3nUmH5eQ">Google Cloud Console → APIs &amp; Services → Credentials → 创建「<b data-page-node-id="5Y3og2YcUMGahTAKOGpDjd">Chrome 扩展程序</b>」类型客户端，将 Client ID 粘贴于此。自用可保持 OAuth consent screen 为 Testing 并把本人账号加入测试用户。</p>
+        <div class="btnrow" data-page-node-id="I7URmrP8t6n6Ez1MQOvZN2">
+          <button id="btn-copy-redirect" type="button" class="mini" data-page-node-id="Rc4VGysko9Znb6KPENOazr">复制 redirect URI</button>
+          <button id="btn-check-clientid" type="button" class="mini" data-page-node-id="MZQVClBGkMO8dsZG5VRYVo">校验 Client ID</button>
+          <span id="redirect-uri" class="mono small" data-page-node-id="1BVbbRDmMTNYKEHXtunYES"></span>
+        </div>
+        <p class="tip warn" data-page-node-id="KUDwojPZJIHgnNXx6CNjxo">关键：在 Google Cloud 创建 OAuth Client 的「类型」必须选 <b data-page-node-id="Jc0DA51lcKRao96BU7pCyi">Chrome 扩展程序</b>（不要选 Web 应用），并把上面的 redirect URI 加到客户端的「已获授权的重定向 URI」里；同时 OAuth consent screen 设为 <b data-page-node-id="AEp2373q2rCwBKhdDFYvGs">Testing</b> 且把你本人在「测试用户」中，否则授权会被拒绝。</p>
+      </div>
+    </div>
+    <div class="row" data-page-node-id="JlHnca6EXYi7sjNcwJge61">
+      <label data-page-node-id="rFNaMWOmFaNhKhRZcugSAh">当前账号</label>
+      <div class="field" data-page-node-id="iZ9Z3QCYPt9pM6AJCvEPFm">
+        <span id="account-info" data-page-node-id="KtkYqQQArZK61ZWhLNgB3i">未登录</span>
+        <div class="btnrow" data-page-node-id="BnArRkJAG8fDX8ISB1sFYs">
+          <button id="btn-login" class="primary" data-page-node-id="GVS710wdiJr0qemzgVvNrK">登录 Google 账号</button>
+          <button id="btn-logout" data-page-node-id="4p0ED6BCH15ThIFu5wTd1f">退出并撤销授权</button>
+        </div>
+        <p class="tip" data-page-node-id="8u2ovucBU7tXUm4RnDuOIs">首次使用需绑定账号；Token 仅保存在本机扩展存储中，不会上传到第三方。</p>
+      </div>
+    </div>
+    <div class="row" data-page-node-id="71VpfUpaIlmsI15nu4Qb1B">
+      <label for="use-mock" data-page-node-id="Gh0Xyz636riQWwA5PCr66d">Mock 模式</label>
+      <div class="field" data-page-node-id="YpDHEHD1HityG7y2aFliyZ">
+        <label class="switch" data-page-node-id="vcbkoRTQu2nJXOQcixyDjB"><input type="checkbox" id="use-mock" data-page-node-id="DQri4C2SccqBZJYmjHRkPc"><span data-page-node-id="xEaK0bkvlYy6QcsWxI11ew"></span> 无凭据联调（不访问真实 Google API，上传为本地模拟）</label>
+      </div>
+    </div>
+    <div class="row" data-page-node-id="XNQ3c4J9uwV8WZWLOYUbsw">
+      <label for="album-name-template" data-page-node-id="ClaVI2Mu2c5OtvzjneibjB">自动相册命名模板</label>
+      <div class="field" data-page-node-id="W9PH8nGRAjCRlZFGdHKCrU">
+        <input id="album-name-template" type="text" data-page-node-id="IgutQ6AaF79N6nQkrTqdKb">
+        <p class="tip" data-page-node-id="DTxWNth8uBrGPsICaL1KDp">支持占位符 {domain}（来源网站域名）、{date}（当天日期）。受 Google Photos API 政策限制，只能写入本扩展创建的相册。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-page-node-id="drOd9g343u4OjfQ2vabMHi">
+    <h2 data-page-node-id="3oqQuBbRU4H7n8XpVF7g81">扫描与高清识别</h2>
+    <div class="row" data-page-node-id="IOnvCbwsz1C3yaKsPjP2KP">
+      <label for="min-side" data-page-node-id="iMZxFlRcDaTZcpMNO7gEqx">高清最低长边（px）</label>
+      <div class="field" data-page-node-id="fkNWF7DbLE2a83FZlgF6UC"><input id="min-side" type="number" min="200" max="8000" step="100" data-page-node-id="VhPzFwTEcp5mC6uC0JpVdX"></div>
+    </div>
+    <div class="checkrow" data-page-node-id="Pl5VSY6cFqRF3A0jYXRHOk">
+      <label class="switch" data-page-node-id="tLItE9Cwb0s8i9DwdsrbBZ"><input type="checkbox" id="include-gif" data-page-node-id="IJku8dhfruwB9jvEf8MPT4"><span data-page-node-id="D0ucKSfE4eAQeuTMBHKQHZ"></span> 扫描并允许 GIF 动图</label>
+      <label class="switch" data-page-node-id="mFsITEAzNPCXExAfA08MQH"><input type="checkbox" id="include-cssbg" data-page-node-id="eUM9z1h37iCAL9VUKj9jol"><span data-page-node-id="fHsSxA5MdCx5N83f35DuDg"></span> 扫描 CSS background 图片</label>
+      <label class="switch" data-page-node-id="w87wnrHgFFtJyDgoAnDZ61"><input type="checkbox" id="scan-anchors" data-page-node-id="JABt8WycCM6kaRqYo1zrxF"><span data-page-node-id="IalsRaFW5y6BGgRgt8ducB"></span> 扫描指向图片文件的链接（外链原图）</label>
+      <label class="switch"><input type="checkbox" id="skip-decor"><span></span> 智能识别并默认隐藏头像/图标/广告/装饰图（可在弹窗筛选里查看）</label>
+      <label class="switch"><input type="checkbox" id="auto-scroll"><span></span> 扫描时自动滚动到页面底部（触发懒加载，完整扫全页）</label>
+    </div>
+  </section>
+
+  <section class="card" data-page-node-id="4vKAEGYpnFSJCiOYpVU4pg">
+    <h2 data-page-node-id="a5q3WfkN4UNXU7Hui7tHof">上传目标</h2>
+    <div class="row" data-page-node-id="kB1nJ3Y3b4hIarGC6wdkas">
+      <label for="album-mode" data-page-node-id="ehQAEaTTcFSLBkHR0a7a3F">默认目标</label>
+      <div class="field" data-page-node-id="jfhZup3Lg5HLcVxjvderEs">
+        <select id="album-mode" data-page-node-id="Ygl8PXWd9VvOXBmBlNqJy4">
+          <option value="auto" data-page-node-id="Z41DO0FMNYhEsxNzSYv137">自动新建相册（按模板命名）</option>
+          <option value="none" data-page-node-id="X6cCsWPx3B0Dfxd0ik6JAp">放相册库</option>
+          <option value="named" data-page-node-id="9vK7lzAnOJ68Vr7MEPj7Bb">使用下方指定的相册名新建</option>
+          <option value="select" data-page-node-id="iu9LEmiwDrB3TGoCHa9W1n">使用下方已保存的相册 ID</option>
+        </select>
+      </div>
+    </div>
+    <div class="row" data-page-node-id="WI6Z8JDakOZCve66rJobV2">
+      <label for="album-name" data-page-node-id="jGr6zB2hlH0qxbKEjRj6c3">相册名</label>
+      <div class="field" data-page-node-id="Cy1UvejAn85lquXMFV6Sm1"><input id="album-name" type="text" placeholder="albumMode=named 时使用" data-page-node-id="Uq5GYLVEunQFp2YGB7F9U8"></div>
+    </div>
+    <div class="row" data-page-node-id="OCSpIjLbJN6VmJ74peHJNC">
+      <label for="album-id" data-page-node-id="ZbjdPUdQoQYDTR17e4C5dM">相册 ID（高级）</label>
+      <div class="field" data-page-node-id="5sEHK3xRdvSkxqzVqr8cRg">
+        <input id="album-id" type="text" placeholder="albumMode=select 时使用" data-page-node-id="W5DESqiumP7vpLTjIGgspq">
+        <div class="btnrow" data-page-node-id="BylxrBBtk3Jdb15Hlvu9fU">
+          <button id="btn-list-albums" type="button" data-page-node-id="NklCYViNUgtaAd6wC1IEjB">列出本扩展创建的相册</button>
+        </div>
+        <div id="album-list" class="album-list hidden" data-page-node-id="cDJJD8bLCeyee6aDLSzcnI"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-page-node-id="L7xr0t6fWlDjOkclAlj7UL">
+    <h2 data-page-node-id="PWOEQJqEXs6lbnD7Ml64wf">上传行为</h2>
+    <div class="row" data-page-node-id="XrnmHyArKg5ZG2baBk5BO6">
+      <label for="max-concurrent" data-page-node-id="LklioC0unlWTv2Ne47BIMA">最大并发数</label>
+      <div class="field" data-page-node-id="Xr2aWAE1sTIKXRMX2LZMQW"><input id="max-concurrent" type="number" min="1" max="4" data-page-node-id="F4huVJEvwyDVYFHnjE6ycq"></div>
+    </div>
+    <div class="row" data-page-node-id="HOQcFWhxplorULDElX3wxk">
+      <label for="retries" data-page-node-id="nN3bJ3DRHoryJDZFrw6NK4">失败自动重试次数</label>
+      <div class="field" data-page-node-id="i2chqA9E3xQXOQGRS710IP"><input id="retries" type="number" min="0" max="3" data-page-node-id="OWsHlzJNRCBMOdhx9yHXXC"></div>
+    </div>
+    <div class="row" data-page-node-id="VUASK4H7gwYw44OL2qE5Mt">
+      <label for="timeout-sec" data-page-node-id="4gN7o25sN0drqWbF6WPPsO">下载超时（秒）</label>
+      <div class="field" data-page-node-id="zzHwHwpSftV8d8u5Aw8MkZ"><input id="timeout-sec" type="number" min="10" max="120" data-page-node-id="sopkdoc6obXjGb3cSGzFMU"></div>
+    </div>
+    <div class="row" data-page-node-id="OmKkhbATF5MSfHhZ2CqtdP">
+      <label for="single-file-limit" data-page-node-id="Hfs6HCiIA8F2CX00ZwAwft">单文件大小上限（MB）</label>
+      <div class="field" data-page-node-id="0BsDttO5q9m2H2ZVjU0FEU"><input id="single-file-limit" type="number" min="1" max="200" data-page-node-id="rkh9YzRDaTq5O4Xf9IpwYE"></div>
+    </div>
+    <div class="checkrow" data-page-node-id="w4AQc1mOpAiEH6lIm8nI9U">
+      <label class="switch" data-page-node-id="X6PDKsspJ15A3mK3cWGZvP"><input type="checkbox" id="skip-duplicates" data-page-node-id="JFKCIlkAhmhSDVtAm0cRsn"><span data-page-node-id="DMkvyxLvz1DH1P5QzsfA10"></span> 跳过本地上传历史中内容重复的图片</label>
+      <label class="switch" data-page-node-id="wKgZsESJsClDfSFK0PxxcV"><input type="checkbox" id="confirm-upload" data-page-node-id="etpnZvmFU9jRxMONxm5EV0"><span data-page-node-id="dBthti03Kukj5M0WMnrKe7"></span> 上传前弹确认框</label>
+    </div>
+  </section>
+
+  <section class="card" data-page-node-id="XGUGmHUi59ESthX269MqoF">
+    <h2 data-page-node-id="2uLuJDMDzEUcKrC7X7ZCoI">历史与数据</h2>
+    <div class="row" data-page-node-id="52hTfGG4m7bdGuiF01Jhwt">
+      <label for="keep-history" data-page-node-id="GBwMWHpNdbEAci4f0gBfMp">保存历史记录</label>
+      <div class="field" data-page-node-id="iHHyE0SuzL5YNbNKnNCva0">
+        <label class="switch" data-page-node-id="AbUc6EMOHUvS3LHbb095F4"><input type="checkbox" id="keep-history" data-page-node-id="MqQ1ysHp95aWjuoAWIdfGc"><span data-page-node-id="mjXep6IgJIzn8D7DMtTPsb"></span> 开启</label>
+      </div>
+    </div>
+    <div class="row" data-page-node-id="XCvrAJJ34vQel256yI22xL">
+      <label for="history-days" data-page-node-id="dZGBGfIC0t5a07N9vAdFyq">保留天数</label>
+      <div class="field" data-page-node-id="ULmeGjQhq8kzwA8ADZwNG3"><input id="history-days" type="number" min="1" max="365" data-page-node-id="iuYt1A81zQ11aQ92zssJ7D"></div>
+    </div>
+    <div class="row" data-page-node-id="BHieHSizLa2UHwrXdMlpdV">
+      <label data-page-node-id="RVeGGB48CDLQBFEPwF5c4V">本地数据</label>
+      <div class="field" data-page-node-id="4Irbt5a9OmsXwCGU8cu3CG">
+        <div class="btnrow" data-page-node-id="hQVlSKDeXKkEzOSOr3KHiL">
+          <button id="btn-clear-history" type="button" data-page-node-id="g0s6viiEwBBWeZnsfUqq5A">清空历史记录</button>
+          <button id="btn-clear-scan" type="button" data-page-node-id="rG1x9hvMbXBVU6m2FglQgP">清空扫描缓存</button>
+          <button id="btn-clear-all" type="button" class="danger" data-page-node-id="3JHzQ6XGnJFo5NrmE4Y7ed">清空全部本地数据</button>
+        </div>
+        <p class="tip" data-page-node-id="1LGny9UYU4Pj4uVrGNmt2M">「清空全部本地数据」将删除设置外的任务、历史、去重索引与账号 Token，需重新授权。</p>
+      </div>
+    </div>
+    <div class="row" data-page-node-id="VYCHQyABNox65fShJl9j8Y">
+      <label data-page-node-id="zm8cBVPPClj2nxa06bGuCC">网页访问权限</label>
+      <div class="field" data-page-node-id="lXGta4nskziR1fGEwjGVOU">
+        <div class="btnrow" data-page-node-id="msTA1Uf5YtGLpXsWC6b1Do">
+          <button id="btn-host-perm" type="button" data-page-node-id="AnovFaRWAUzZMlbBTVBrN8">授予「所有网站」下载权限</button>
+        </div>
+        <p class="tip" data-page-node-id="vVce7h4bkNwpJC0srhepBx">授予后扩展可在后台直接抓取各网站图片（绕过跨域限制），成功率更高；不授予时优先通过页面上下文抓取。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" data-page-node-id="billing">
+    <h2 data-page-node-id="billing-h2">收费与会员</h2>
+    <div class="row" data-page-node-id="billing-row-base">
+      <label for="billing-baseurl">收费后端地址</label>
+      <div class="field" data-page-node-id="billing-field-base">
+        <input id="billing-baseurl" type="text" placeholder="https://api.example.com 或 api.example.com" data-page-node-id="billing-input">
+        <p class="tip" data-page-node-id="billing-tip-base">用于额度校验与升级购买。可留空表示不启用收费（下载/上传不限次）。填写后建议开启下方「配额校验」。</p>
+        <div class="btnrow" data-page-node-id="billing-btnrow">
+          <button id="btn-billing-test" type="button" class="mini" data-page-node-id="billing-test">测试连接</button>
+          <span id="billing-test-result" class="mono small" data-page-node-id="billing-test-result"></span>
+        </div>
+      </div>
+    </div>
+    <div class="row" data-page-node-id="billing-row-quote">
+      <label for="billing-quote" data-page-node-id="billing-quote-label">配额校验</label>
+      <div class="field">
+        <label class="switch" data-page-node-id="billing-switch"><input type="checkbox" id="billing-quote" data-page-node-id="billing-quote-ck"><span></span> 上传前校验产品账号剩余额度（用完提示升级）</label>
+        <p class="tip" data-page-node-id="billing-tip-quote">未登录产品账号时，将跳过校验并放行本地上传。建议配合弹窗中的「登录」完成账号绑定。</p>
+      </div>
+    </div>
+    <div class="row" data-page-node-id="billing-row-login">
+      <label data-page-node-id="billing-login-label">产品账号</label>
+      <div class="field">
+        <div id="billing-account-status" class="mono small" data-page-node-id="billing-account-status">未登录</div>
+        <div class="btnrow">
+          <button id="btn-billing-login" type="button" class="mini" data-page-node-id="billing-login-btn">在产品账号弹窗登录</button>
+          <button id="btn-billing-logout" type="button" class="mini danger" data-page-node-id="billing-logout-btn">退出</button>
+        </div>
+        <p class="tip" data-page-node-id="billing-tip-login">产品账号用于额度/套餐管理，与上方的 Google 账号授权相互独立。</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="toast" class="toast hidden" data-page-node-id="GK1WyCcMecmtpZ4akDnyaJ"></div>
+</div>
+<script src="options.js"></script>
+</body>
+</html>

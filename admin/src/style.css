@@ -1,0 +1,10 @@
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  color: #1c2a44;
+  background: #f4f6fb;
+  --el-color-primary: #3478f6;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+h1, h2, h3 { font-weight: 600; }
+.el-menu { border-right: none; }

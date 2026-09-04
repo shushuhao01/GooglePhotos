@@ -1,0 +1,12 @@
+{
+  "name": "web-image-uploader",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chrome MV3 扩展：网页高清图片批量上传 Google 相册",
+  "scripts": {
+    "test": "node tests/run-tests.js",
+    "check": "node scripts/check-syntax.js",
+    "icons": "python3 scripts/make_icons.py"
+  },
+  "license": "UNLICENSED"
+}
