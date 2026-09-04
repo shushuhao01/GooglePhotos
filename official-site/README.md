@@ -18,7 +18,7 @@
 
 ## 宝塔/Nginx 路径规划
 
-官网静态文件放在站点根目录；现有管理后台构建产物放在 `/admin/`，或由 Nginx 反向代理到管理后台服务。示例：
+官网静态文件放在站点根目录；先在 `admin` 目录执行 `npm run build`，再将生成的 `admin/dist` 目录内容复制到官网根目录的 `admin/`（管理后台已配置 `/admin/` 资源基路径）。示例：
 
 ```nginx
 server {
@@ -29,8 +29,8 @@ server {
     location / { try_files $uri $uri/ /index.html; }
     location /privacy/ { try_files $uri $uri/ /privacy/index.html; }
     location /terms/ { try_files $uri $uri/ /terms/index.html; }
-    location /admin/ { proxy_pass http://127.0.0.1:4173/; proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto $scheme; }
+    location /admin/ { try_files $uri $uri/ /admin/index.html; }
 }
 ```
 
-如果后台由宝塔单独创建站点，也可以将 `/admin/` 改成反向代理到后台域名；官网仍保持 `https://gp.abc222.cn/`、`/privacy/`、`/terms/` 三个公开路径。
+如果后台由宝塔单独创建 Node 服务，也可以将 `/admin/` 改成反向代理；官网仍保持 `https://gp.abc222.cn/`、`/privacy/`、`/terms/` 三个公开路径。
