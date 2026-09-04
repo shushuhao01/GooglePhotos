@@ -104,7 +104,14 @@ echo -e "  ${GREEN}[OK] admin 构建完成${NC}"
 echo -e "  ${YELLOW}[5.3] web-image-uploader 扩展（源码无构建，仅语法校验）...${NC}"
 cd "$PROJECT_DIR/web-image-uploader"
 if [ -f "scripts/check-syntax.js" ]; then
-  /Users/huangfeng/.workbuddy/binaries/node/versions/22.12.0/bin/node scripts/check-syntax.js 2>&1 | tail -3 || node scripts/check-syntax.js 2>&1 | tail -3 || true
+  # 自动检测 node（宝塔/unix 通用），退化到常见路径
+  if command -v node &> /dev/null; then
+    node scripts/check-syntax.js 2>&1 | tail -3 || true
+  elif [ -x "/www/server/nodejs/v22.12.0/bin/node" ]; then
+    /www/server/nodejs/v22.12.0/bin/node scripts/check-syntax.js 2>&1 | tail -3 || true
+  else
+    echo -e "  ${YELLOW}[i] 未找到 node，跳过扩展语法校验${NC}"
+  fi
   echo -e "  ${GREEN}[OK] 扩展语法校验完成${NC}"
 else
   echo -e "  ${YELLOW}[i] 未找到 check-syntax.js，跳过扩展校验${NC}"
