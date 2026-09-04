@@ -10,7 +10,7 @@
       <el-table-column prop="fileCount" label="文件数" width="90" />
       <el-table-column prop="totalBytes" label="总大小" width="100"><template #default="{row}">{{ fmtBytes(row.totalBytes) }}</template></el-table-column>
       <el-table-column label="状态" width="110"><template #default="{row}"><el-tag :type="statusType(row.status)" size="small">{{ statusText(row.status) }}</el-tag></template></el-table-column>
-      <el-table-column label="创建时间" width="180"><template #default="{row}">{{ fmt(row.created_at) }}</template></el-table-column>
+      <el-table-column label="创建时间" width="180"><template #default="{row}">{{ fmt(row.createdAt) }}</template></el-table-column>
       <el-table-column label="操作" width="120" fixed="right">
         <template #default="{row}">
           <el-button size="small" text type="primary" @click="copyUrl(row)">复制链接</el-button>
@@ -38,8 +38,8 @@ async function load() {
   catch (e: any) { ElMessage.error(e.message); } finally { loading.value = false; }
 }
 async function copyUrl(row: any) {
-  if (!row.download_url) return ElMessage.warning('该任务暂无下载链接');
-  try { await navigator.clipboard.writeText(row.download_url); ElMessage.success('已复制'); }
+  if (!row.downloadUrl) return ElMessage.warning('该任务暂无下载链接');
+  try { await navigator.clipboard.writeText(row.downloadUrl); ElMessage.success('已复制'); }
   catch { ElMessage.warning('复制失败'); }
 }
 onMounted(load);

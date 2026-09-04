@@ -43,7 +43,7 @@ import { ElMessage } from 'element-plus';
 const rules = ref<any[]>([]);
 const loading = ref(false);
 const dialog = ref(false);
-const form = ref<any>({ key: '', name: '', rule_type: 'ip', value: 0, window_seconds: 60, enabled: true, action: '' });
+const form = ref<any>({ key: '', name: '', ruleType: 'ip', value: 0, windowSeconds: 60, enabled: true, action: '' });
 
 async function load() {
   loading.value = true;
@@ -52,12 +52,12 @@ async function load() {
 }
 function openEdit(row?: any) {
   if (row) form.value = { ...row };
-  else form.value = { key: '', name: '', rule_type: 'ip', value: 0, window_seconds: 60, enabled: true, action: '' };
+  else form.value = { key: '', name: '', ruleType: 'ip', value: 0, windowSeconds: 60, enabled: true, action: '' };
   dialog.value = true;
 }
 async function save() {
   const isNew = !form.value.key || rules.value.every(r => r.key !== form.value.key);
-  const payload = { key: form.value.key, name: form.value.name, rule_type: form.value.rule_type, value: Number(form.value.value), window_seconds: Number(form.value.window_seconds), enabled: !!form.value.enabled, action: form.value.action || '' };
+  const payload = { key: form.value.key, name: form.value.name, ruleType: form.value.ruleType, value: Number(form.value.value), windowSeconds: Number(form.value.windowSeconds), enabled: !!form.value.enabled, action: form.value.action || '' };
   try {
     if (isNew) await req('/admin/risk-rules', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     else await req('/admin/risk-rules/' + form.value.key, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: !!form.value.enabled }) });

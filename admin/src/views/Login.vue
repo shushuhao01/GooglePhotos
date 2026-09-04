@@ -10,7 +10,7 @@
         </el-form-item>
         <el-button type="primary" size="large" class="login-btn" :loading="auth.loginLoading" @click="doLogin">登录</el-button>
       </el-form>
-      <div class="tip">生产环境请配置 ADMIN_EMAIL 并使用正式认证；当前开发接口在 NODE_ENV=production 时自动关闭。</div>
+      <div class="tip">管理员邮箱可在后台「系统设置 → 管理员邮箱」中配置（无需改服务器 .env）。注意：修改后需退出重新登录，令牌才会刷新管理员身份。生产环境仅管理员邮箱可登录本后台。</div>
     </div>
   </div>
 </template>

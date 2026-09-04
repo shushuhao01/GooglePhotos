@@ -51,9 +51,9 @@ async function load() {
   try {
     const d: any = await req('/admin/system-configs');
     for (const c of d.configs || []) {
-      if (c.config_key === 'announcement') announcement.value = c.value;
-      if (c.config_key === 'maintenance') maintenance.value = c.value;
-      if (c.config_key === 'site') site.value = c.value;
+      if (c.configKey === 'announcement') announcement.value = c.value;
+      if (c.configKey === 'maintenance') maintenance.value = c.value;
+      if (c.configKey === 'site') site.value = c.value;
     }
   } catch (e: any) { ElMessage.error(e.message); }
   try {

@@ -5,9 +5,9 @@
       <el-table-column prop="id" label="ID" width="70" />
       <el-table-column prop="actor" label="操作者" width="170" />
       <el-table-column prop="action" label="动作" min-width="200" />
-      <el-table-column prop="target_type" label="对象" width="110" />
+      <el-table-column prop="targetType" label="对象" width="110" />
       <el-table-column prop="ip" label="IP" width="140" />
-      <el-table-column label="时间" width="180"><template #default="{row}">{{ fmt(row.created_at) }}</template></el-table-column>
+      <el-table-column label="时间" width="180"><template #default="{row}">{{ fmt(row.createdAt) }}</template></el-table-column>
     </el-table>
   </el-card>
 </template>

@@ -10,7 +10,7 @@
       <el-table-column prop="display_name" label="昵称" width="140" />
       <el-table-column label="状态" width="100"><template #default="{row}"><el-tag :type="row.status==='active'?'success':row.status==='blocked'?'danger':'info'" size="small">{{ statusText(row.status) }}</el-tag></template></el-table-column>
       <el-table-column label="管理员" width="100"><template #default="{row}"><el-tag v-if="row.isAdmin" type="warning" size="small">管理员</el-tag><span v-else style="color:#aaa">普通</span></template></el-table-column>
-      <el-table-column label="创建时间" width="170"><template #default="{row}">{{ fmt(row.created_at) }}</template></el-table-column>
+      <el-table-column label="创建时间" width="170"><template #default="{row}">{{ fmt(row.createdAt) }}</template></el-table-column>
       <el-table-column label="操作" width="320" fixed="right">
         <template #default="{row}">
           <el-button size="small" @click="showDetail(row)">详情</el-button>

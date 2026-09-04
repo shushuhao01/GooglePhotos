@@ -28,10 +28,10 @@
       <el-table :data="plans" style="width:100%">
         <el-table-column prop="code" label="代码" width="140" />
         <el-table-column prop="name" label="名称" />
-        <el-table-column prop="billing_period" label="周期" width="110" />
-        <el-table-column label="价格" width="130"><template #default="{row}">{{ row.price_cents===0?'免费':'¥'+(row.price_cents/100).toFixed(2) }}</template></el-table-column>
-        <el-table-column prop="upload_quota" label="上传/月" width="100" />
-        <el-table-column label="状态" width="90"><template #default="{row}"><el-tag :type="row.is_active?'success':'info'" size="small">{{ row.is_active?'启用':'停用' }}</el-tag></template></el-table-column>
+        <el-table-column prop="billingPeriod" label="周期" width="110" />
+        <el-table-column label="价格" width="130"><template #default="{row}">{{ row.priceCents===0?'免费':'¥'+(row.priceCents/100).toFixed(2) }}</template></el-table-column>
+        <el-table-column prop="uploadQuota" label="上传/月" width="100" />
+        <el-table-column label="状态" width="90"><template #default="{row}"><el-tag :type="row.isActive?'success':'info'" size="small">{{ row.isActive?'启用':'停用' }}</el-tag></template></el-table-column>
       </el-table>
     </div>
   </div>

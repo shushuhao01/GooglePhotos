@@ -185,8 +185,8 @@ r.get('/admin/risk-rules', adminAuth, handler(async (_req, res) => {
 r.post('/admin/risk-rules', adminAuth, handler(async (req, res) => {
   const b = req.body || {};
   const d = await riskService.upsert(
-    String(b.key || ''), String(b.name || ''), String(b.rule_type || 'ip'),
-    Number(b.value || 0), Number(b.window_seconds || 60), b.enabled !== false, String(b.action || ''),
+    String(b.key || ''), String(b.name || ''), String(b.ruleType || b.rule_type || 'ip'),
+    Number(b.value || 0), Number(b.windowSeconds || b.window_seconds || 60), b.enabled !== false, String(b.action || ''),
   );
   return ok(res, d);
 }));

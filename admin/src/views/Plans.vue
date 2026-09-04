@@ -8,16 +8,16 @@
       <el-table-column prop="code" label="代码" width="130" />
       <el-table-column prop="name" label="名称" min-width="130" />
       <el-table-column prop="currency" label="币种" width="70" />
-      <el-table-column label="价格" width="120"><template #default="{row}">{{ row.price_cents===0?'免费':'¥'+(row.price_cents/100).toFixed(2) }}</template></el-table-column>
-      <el-table-column prop="billing_period" label="周期" width="100" />
-      <el-table-column prop="upload_quota" label="上传" width="80" />
-      <el-table-column prop="download_quota" label="下载" width="80" />
-      <el-table-column prop="zip_quota" label="ZIP" width="80" />
-      <el-table-column label="状态" width="90"><template #default="{row}"><el-tag :type="row.is_active?'success':'info'" size="small">{{ row.is_active?'启用':'停用' }}</el-tag></template></el-table-column>
+      <el-table-column label="价格" width="120"><template #default="{row}">{{ row.priceCents===0?'免费':'¥'+(row.priceCents/100).toFixed(2) }}</template></el-table-column>
+      <el-table-column prop="billingPeriod" label="周期" width="100" />
+      <el-table-column prop="uploadQuota" label="上传" width="80" />
+      <el-table-column prop="downloadQuota" label="下载" width="80" />
+      <el-table-column prop="zipQuota" label="ZIP" width="80" />
+      <el-table-column label="状态" width="90"><template #default="{row}"><el-tag :type="row.isActive?'success':'info'" size="small">{{ row.isActive?'启用':'停用' }}</el-tag></template></el-table-column>
       <el-table-column label="操作" width="150" fixed="right">
         <template #default="{row}">
           <el-button size="small" @click="openEdit(row)">编辑</el-button>
-          <el-button size="small" type="danger" @click="toggle(row)">{{ row.is_active?'停用':'启用' }}</el-button>
+          <el-button size="small" type="danger" @click="toggle(row)">{{ row.isActive?'停用':'启用' }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -28,12 +28,12 @@
       <el-form-item label="代码"><el-input v-model="form.code" :disabled="!!form.code" placeholder="如 pro-month" /></el-form-item>
       <el-form-item label="名称"><el-input v-model="form.name" /></el-form-item>
       <el-form-item label="币种"><el-select v-model="form.currency"><el-option label="CNY ¥" value="CNY"/><el-option label="USD $" value="USD"/><el-option label="EUR €" value="EUR"/></el-select></el-form-item>
-      <el-form-item label="价格(分)"><el-input-number v-model="form.price_cents" :min="0" /></el-form-item>
-      <el-form-item label="周期"><el-select v-model="form.billing_period"><el-option label="月付" value="month"/><el-option label="年付" value="year"/><el-option label="永久" value="lifetime"/><el-option label="一次性" value="one_time"/></el-select></el-form-item>
-      <el-form-item label="上传/下载/ZIP"><el-input-number v-model="form.upload_quota" :min="0" /><span class="sep">/</span><el-input-number v-model="form.download_quota" :min="0" /><span class="sep">/</span><el-input-number v-model="form.zip_quota" :min="0" /></el-form-item>
-      <el-form-item label="单次张数"><el-input-number v-model="form.max_items" :min="1" /></el-form-item>
+      <el-form-item label="价格(分)"><el-input-number v-model="form.priceCents" :min="0" /></el-form-item>
+      <el-form-item label="周期"><el-select v-model="form.billingPeriod"><el-option label="月付" value="month"/><el-option label="年付" value="year"/><el-option label="永久" value="lifetime"/><el-option label="一次性" value="one_time"/></el-select></el-form-item>
+      <el-form-item label="上传/下载/ZIP"><el-input-number v-model="form.uploadQuota" :min="0" /><span class="sep">/</span><el-input-number v-model="form.downloadQuota" :min="0" /><span class="sep">/</span><el-input-number v-model="form.zipQuota" :min="0" /></el-form-item>
+      <el-form-item label="单次张数"><el-input-number v-model="form.maxItems" :min="1" /></el-form-item>
       <el-form-item label="并发"><el-input-number v-model="form.concurrency" :min="1" :max="10" /></el-form-item>
-      <el-form-item label="试用(天)"><el-input-number v-model="form.trial_days" :min="0" /></el-form-item>
+      <el-form-item label="试用(天)"><el-input-number v-model="form.trialDays" :min="0" /></el-form-item>
     </el-form>
     <template #footer><el-button @click="dialog=false">取消</el-button><el-button type="primary" @click="save">保存</el-button></template>
   </el-dialog>
@@ -47,7 +47,7 @@ import { ElMessage } from 'element-plus';
 const plans = ref<any[]>([]);
 const loading = ref(false);
 const dialog = ref(false);
-const form = ref<any>({ code: '', name: '', currency: 'CNY', price_cents: 0, billing_period: 'month', upload_quota: 1, download_quota: 1, zip_quota: 1, max_items: 10, concurrency: 1, trial_days: 0 });
+const form = ref<any>({ code: '', name: '', currency: 'CNY', priceCents: 0, billingPeriod: 'month', uploadQuota: 1, downloadQuota: 1, zipQuota: 1, maxItems: 10, concurrency: 1, trialDays: 0 });
 
 async function load() {
   loading.value = true;
@@ -55,7 +55,7 @@ async function load() {
   catch (e: any) { ElMessage.error(e.message); } finally { loading.value = false; }
 }
 function openEdit(row?: any) {
-  form.value = row ? { ...row } : { code: '', name: '', currency: 'CNY', price_cents: 0, billing_period: 'month', upload_quota: 1, download_quota: 1, zip_quota: 1, max_items: 10, concurrency: 1, trial_days: 0 };
+  form.value = row ? { ...row } : { code: '', name: '', currency: 'CNY', priceCents: 0, billingPeriod: 'month', uploadQuota: 1, downloadQuota: 1, zipQuota: 1, maxItems: 10, concurrency: 1, trialDays: 0 };
   dialog.value = true;
 }
 async function save() {
@@ -68,7 +68,7 @@ async function save() {
   } catch (e: any) { ElMessage.error(e.message); }
 }
 async function toggle(row: any) {
-  try { await req('/admin/plans/' + row.code, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...row, is_active: !row.is_active }) }); ElMessage.success('已更新'); load(); }
+  try { await req('/admin/plans/' + row.code, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...row, isActive: !row.isActive }) }); ElMessage.success('已更新'); load(); }
   catch (e: any) { ElMessage.error(e.message); }
 }
 onMounted(load);
