@@ -129,10 +129,14 @@ fi
 
 echo -e "  ${YELLOW}[5.2] 构建 admin 管理后台 (vite build)...${NC}"
 cd "$PROJECT_DIR/admin"
-# 先彻底清空 dist 目录：宝塔会在站点根(即 dist)自动写入 .user.ini 等 PHP 安全文件，
-# 且该文件可能被当做目录处理，导致 Vite emptyDir 清空时 scandir 报 ENOTDIR。
-# 纯静态 Vue 站不需要任何 PHP 文件，直接清空即可让 Vite 从空目录重建。
+# 宝塔会在站点根(即 dist)自动写入 .user.ini 等 PHP 安全文件，并设置不可变属性(chattr +i)，
+# 导致 Vite emptyDir 清空 dist 时 scandir 报 ENOTDIR，且连 root 都无法 rm 删除。
+# 纯静态 Vue 站不需要任何 PHP 文件。依次：解除不可变属性 -> 彻底清空 dist -> 重建。
 if [ -d "$PROJECT_DIR/admin/dist" ]; then
+  # 解除本目录内所有 .user.ini 的不可变/只读属性(宝塔可能用 chattr +i 或 chmod 保护)
+  find "$PROJECT_DIR/admin/dist" -name ".user.ini" -exec chattr -i {} + 2>/dev/null || true
+  find "$PROJECT_DIR/admin/dist" -name ".user.ini" -exec chmod 644 {} + 2>/dev/null || true
+  # 彻底清空目录(兼容文件/目录、不可变属性已解除)
   find "$PROJECT_DIR/admin/dist" -mindepth 1 -delete 2>/dev/null || rm -rf "$PROJECT_DIR/admin/dist"/* 2>/dev/null || true
 fi
 if npm run build > /tmp/admin-build.log 2>&1; then
