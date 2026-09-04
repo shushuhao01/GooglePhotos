@@ -53,8 +53,14 @@ echo ""
 # ==================== Step 2: 拉取代码 ====================
 echo -e "${YELLOW}[2] 拉取最新代码...${NC}"
 cd "$PROJECT_DIR"
-# 记录当前分支
-CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+# 修复 git 目录所有权检测（宝塔/www 部署时目录属主与执行用户不一致，git 默认拒绝访问）
+if git config --global --add safe.directory "$PROJECT_DIR" 2>/dev/null; then
+  echo -e "  ${GREEN}[OK] 已添加 git safe.directory: $PROJECT_DIR${NC}"
+else
+  echo -e "  ${YELLOW}[i] 添加 git safe.directory 失败（忽略，继续尝试）${NC}"
+fi
+# 记录当前分支（无法识别时兜底到 main）
+CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
 echo -e "  ${CYAN}当前分支: $CUR_BRANCH${NC}"
 git stash save "Auto stash before update $(date '+%Y-%m-%d %H:%M:%S')" 2>/dev/null || true
 if git pull origin "$CUR_BRANCH"; then
@@ -164,7 +170,7 @@ echo -e "${GREEN}  更新完成！${NC}"
 echo -e "${CYAN}==========================================${NC}"
 echo ""
 echo -e "${YELLOW}最近提交:${NC}"
-git log --oneline -5
+git log --oneline -5 2>/dev/null || echo "  (无法读取 git 日志，请确认仓库所有权正确)"
 echo ""
 echo -e "${YELLOW}服务状态:${NC}"
 pm2 list 2>/dev/null || true
