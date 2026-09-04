@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Google相册上传与批量下载 · Google Photos Uploader",
   "short_name": "相册上传·批量下载",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "扫描网页图片，批量上传至 Google Photos，或下载原图并打包为 ZIP；支持筛选、预览与任务进度。 Scan, upload, download and ZIP web images.",
   "minimum_chrome_version": "120",
   "icons": {
