@@ -1,6 +1,6 @@
 {
   "name": "web-image-uploader",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "private": true,
   "description": "Chrome MV3 扩展：网页高清图片批量上传 Google 相册",
   "scripts": {
