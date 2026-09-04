@@ -39,6 +39,9 @@ Thumbs.db
 web-image-uploader-backup-*/
 web-image-uploader-backup-*.zip
 
+# ===== 本地工作区数据（不入库） =====
+.workbuddy/
+
 # ===== 其他 =====
 coverage/
 .nyc_output/
