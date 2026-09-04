@@ -81,17 +81,32 @@ echo ""
 # ==================== Step 4: 安装/更新依赖 ====================
 echo -e "${YELLOW}[4] 更新依赖...${NC}"
 
+# 修复 node_modules/.bin 下可执行工具（tsc/vite 等）缺失执行权限的问题。
+# 注意：.bin/tsc 是符号链接，chmod 符号链接本身无效，必须对目标文件加执行权限。
+fix_bin_perms() {
+  local dir="$1"
+  [ -d "$dir" ] || return 0
+  # 1) 对 .bin 目录内的符号链接目标（跟随 -L）加执行权限——解决 tsc/vite Permission denied
+  find -L "$dir/.bin" -maxdepth 1 -type f -exec chmod 755 {} + 2>/dev/null || true
+  find "$dir/.bin" -maxdepth 1 -type f -exec chmod 755 {} + 2>/dev/null || true
+  # 2) 兜底：直接给常见的 bin 脚本目录加执行权限
+  chmod -R 755 "$dir/.bin" 2>/dev/null || true
+  # 3) 对常见的 CLI 二进制（typescript/bin、esbuild 等）加执行权限
+  find "$dir" -maxdepth 3 -type f -path "*/bin/*" -exec chmod 755 {} + 2>/dev/null || true
+  # 4) 让目录可进入/可写，确保构建能写入产物（宝塔/www 属主下 root 运行）
+  chmod -R 755 "$dir/.bin" 2>/dev/null || true
+}
+
 echo -e "  ${YELLOW}[4.1] backend 依赖...${NC}"
 cd "$PROJECT_DIR/backend"
 npm install 2>&1 | tail -2
-# 修复宝塔/www 部署后 node_modules/.bin 工具缺失执行权限的问题（导致 tsc/vite Permission denied）
-chmod -R 755 "$PROJECT_DIR/backend/node_modules/.bin" 2>/dev/null || true
+fix_bin_perms "$PROJECT_DIR/backend/node_modules"
 echo -e "  ${GREEN}[OK] backend 依赖已更新${NC}"
 
 echo -e "  ${YELLOW}[4.2] admin 管理后台依赖...${NC}"
 cd "$PROJECT_DIR/admin"
 npm install 2>&1 | tail -2
-chmod -R 755 "$PROJECT_DIR/admin/node_modules/.bin" 2>/dev/null || true
+fix_bin_perms "$PROJECT_DIR/admin/node_modules"
 echo -e "  ${GREEN}[OK] admin 依赖已更新${NC}"
 
 echo -e "  ${YELLOW}[4.3] web-image-uploader 扩展无构建依赖（跳过）${NC}"
