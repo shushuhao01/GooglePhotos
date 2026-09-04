@@ -9,11 +9,13 @@
       <el-table-column label="邮箱" min-width="200"><template #default="{row}">{{ row.email }}</template></el-table-column>
       <el-table-column prop="display_name" label="昵称" width="140" />
       <el-table-column label="状态" width="100"><template #default="{row}"><el-tag :type="row.status==='active'?'success':row.status==='blocked'?'danger':'info'" size="small">{{ statusText(row.status) }}</el-tag></template></el-table-column>
+      <el-table-column label="管理员" width="100"><template #default="{row}"><el-tag v-if="row.isAdmin" type="warning" size="small">管理员</el-tag><span v-else style="color:#aaa">普通</span></template></el-table-column>
       <el-table-column label="创建时间" width="170"><template #default="{row}">{{ fmt(row.created_at) }}</template></el-table-column>
-      <el-table-column label="操作" width="220" fixed="right">
+      <el-table-column label="操作" width="320" fixed="right">
         <template #default="{row}">
           <el-button size="small" @click="showDetail(row)">详情</el-button>
           <el-button size="small" type="warning" @click="grant(row)">发额度</el-button>
+          <el-button size="small" type="success" @click="toggleAdmin(row)">{{ row.isAdmin ? '取消管理员' : '设为管理员' }}</el-button>
           <el-button size="small" type="danger" @click="toggleBlock(row)">{{ row.status==='blocked'?'解封':'封禁' }}</el-button>
         </template>
       </el-table-column>
@@ -54,6 +56,13 @@ async function toggleBlock(row: any) {
     const status = row.status === 'blocked' ? 'active' : 'blocked';
     await req('/admin/users/' + row.id + '/status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
     ElMessage.success('已更新'); load();
+  } catch (e: any) { ElMessage.error(e.message); }
+}
+async function toggleAdmin(row: any) {
+  try {
+    const isAdmin = !row.isAdmin;
+    await req('/admin/users/' + row.id + '/admin', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isAdmin }) });
+    ElMessage.success(isAdmin ? '已设为管理员' : '已取消管理员'); load();
   } catch (e: any) { ElMessage.error(e.message); }
 }
 onMounted(load);

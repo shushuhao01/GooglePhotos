@@ -1,10 +1,12 @@
 import { randomBytes } from 'node:crypto';
 import { AppDataSource } from '../config/database.js';
 import { ZipJob } from '../entities/ZipJob.js';
+import { User } from '../entities/User.js';
 import { EntitlementService } from './EntitlementService.js';
 import { AppError } from '../utils/response.js';
 
 const zipRepo = () => AppDataSource.getRepository(ZipJob);
+const userRepo = () => AppDataSource.getRepository(User);
 
 export class ZipService {
   /* 创建 ZIP 任务：服务端抓取并打包，预扣 zip 额度 */
@@ -33,6 +35,18 @@ export class ZipService {
     const job = await zipRepo().findOne({ where: { jobNo, userId } });
     if (!job) throw new AppError(404, 'JOB_NOT_FOUND', '任务不存在');
     return job;
+  }
+
+  /* 后台任务列表（带用户邮箱） */
+  async listForAdmin(limit = 50) {
+    const rows = await zipRepo().find({ order: { id: 'DESC' }, take: Math.min(300, limit) });
+    const users = await userRepo().find({ select: ['id', 'email', 'display_name'] as any });
+    const emailMap = new Map(users.map((u) => [u.id, u.email]));
+    return rows.map((j) => ({
+      id: j.id, jobNo: j.jobNo, userId: j.userId, userEmail: emailMap.get(j.userId) || '',
+      status: j.status, fileCount: j.fileCount, totalBytes: j.totalBytes,
+      downloadUrl: j.downloadUrl, errorCode: j.errorCode, expiresAt: j.expiresAt, createdAt: j.createdAt,
+    }));
   }
 }
 

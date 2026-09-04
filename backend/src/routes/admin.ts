@@ -7,6 +7,7 @@ import { Plan } from '../entities/Plan.js';
 import { PaymentChannel } from '../entities/PaymentChannel.js';
 import { Order } from '../entities/Order.js';
 import { userAdminService, systemConfigService, riskService, auditService } from '../services/AdminService.js';
+import { zipService } from '../services/ZipService.js';
 import { providerFor, PROVIDERS } from '../payments/index.js';
 import { encryptConfig, decryptConfig } from '../utils/cryptoConfig.js';
 import { billingService } from '../services/BillingService.js';
@@ -71,6 +72,23 @@ r.put('/admin/users/:id/status', adminAuth, handler(async (req, res) => {
 
 r.post('/admin/users/:id/grant', adminAuth, handler(async (req, res) => {
   const d = await userAdminService.adjustQuota(Number(req.params.id), String(req.body?.planCode || 'free'));
+  return ok(res, d);
+}));
+
+/* 设为管理员 / 取消管理员 */
+r.put('/admin/users/:id/admin', adminAuth, handler(async (req, res) => {
+  const d = await userAdminService.setAdmin(Number(req.params.id), !!req.body?.isAdmin);
+  return ok(res, d);
+}));
+
+/* ---------- 管理员邮箱列表（可视化配置） ---------- */
+r.get('/admin/admin-emails', adminAuth, handler(async (_req, res) => {
+  const emails = await systemConfigService.getAdminEmails();
+  return ok(res, { emails });
+}));
+
+r.put('/admin/admin-emails', adminAuth, handler(async (req, res) => {
+  const d = await systemConfigService.setAdminEmails(req.body?.emails || []);
   return ok(res, d);
 }));
 
@@ -151,10 +169,38 @@ r.get('/admin/audit-logs', adminAuth, handler(async (req, res) => {
   return ok(res, { logs });
 }));
 
+/* ---------- 中转与 ZIP 任务 ---------- */
+r.get('/admin/zip-jobs', adminAuth, handler(async (req, res) => {
+  const jobs = await zipService.listForAdmin(Number(req.query.limit || 50));
+  return ok(res, { jobs });
+}));
+
 /* ---------- 风控 ---------- */
 r.get('/admin/risk-rules', adminAuth, handler(async (_req, res) => {
   const rules = await riskService.list();
   return ok(res, { rules });
+}));
+
+/* 新增/更新风控规则 */
+r.post('/admin/risk-rules', adminAuth, handler(async (req, res) => {
+  const b = req.body || {};
+  const d = await riskService.upsert(
+    String(b.key || ''), String(b.name || ''), String(b.rule_type || 'ip'),
+    Number(b.value || 0), Number(b.window_seconds || 60), b.enabled !== false, String(b.action || ''),
+  );
+  return ok(res, d);
+}));
+
+/* 启停风控规则 */
+r.put('/admin/risk-rules/:key', adminAuth, handler(async (req, res) => {
+  const b = req.body || {};
+  const existing = await riskService.get(String(req.params.key));
+  if (!existing) return ok(res, { ok: false, code: 'NOT_FOUND' });
+  const d = await riskService.upsert(
+    existing.key, existing.name, existing.ruleType, existing.value,
+    existing.windowSeconds, b.enabled !== false, existing.action || '',
+  );
+  return ok(res, d);
 }));
 
 /* ---------- 系统配置（公告/维护/站点） ---------- */

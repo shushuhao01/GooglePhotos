@@ -6,10 +6,15 @@ import { ok } from '../utils/response.js';
 
 const r = Router();
 
-/* 开发环境邮箱登录（生产关闭） */
+/* 开发环境邮箱登录（生产仅对管理员邮箱开放） */
 r.post('/auth/dev-login', handler(async (req, res) => {
-  if (process.env.NODE_ENV === 'production') return res.status(404).json({ ok: false, code: 'NOT_FOUND' });
-  const d = await authService.devLogin(String(req.body.email || ''));
+  const isProd = process.env.NODE_ENV === 'production';
+  const email = String(req.body.email || '').trim().toLowerCase();
+  if (isProd) {
+    const allowed = await authService.isAdminEmail(email);
+    if (!allowed) return res.status(404).json({ ok: false, code: 'NOT_FOUND' });
+  }
+  const d = await authService.devLogin(email);
   return ok(res, d);
 }));
 

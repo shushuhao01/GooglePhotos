@@ -33,6 +33,18 @@ export class SystemConfigService {
     return { ok: true };
   }
   async list() { return confRepo().find(); }
+  async getAdminEmails(): Promise<string[]> {
+    const row = await confRepo().findOne({ where: { configKey: 'admin_emails' } });
+    const list = ((row?.value as any)?.emails || []) as string[];
+    return list.map((e) => String(e).trim()).filter(Boolean);
+  }
+  async setAdminEmails(emails: string[]) {
+    const clean = Array.isArray(emails) ? emails.map((e) => String(e).trim().toLowerCase()).filter((e) => /^\S+@\S+\.\S+$/.test(e)) : [];
+    const exist = await confRepo().findOne({ where: { configKey: 'admin_emails' } });
+    if (exist) { exist.value = { emails: clean }; exist.description = '管理员邮箱列表（可视化配置）'; await confRepo().save(exist); }
+    else await confRepo().save({ configKey: 'admin_emails', value: { emails: clean }, description: '管理员邮箱列表（可视化配置）' });
+    return { emails: clean };
+  }
 }
 export const systemConfigService = new SystemConfigService();
 
@@ -62,6 +74,10 @@ export class UserAdminService {
   }
   async setStatus(userId: number, status: 'active' | 'blocked' | 'deleted') {
     await userRepo().update({ id: userId }, { status });
+    return { ok: true };
+  }
+  async setAdmin(userId: number, isAdmin: boolean) {
+    await userRepo().update({ id: userId }, { isAdmin: !!isAdmin });
     return { ok: true };
   }
   async adjustQuota(userId: number, planCode: string) {
