@@ -1,6 +1,11 @@
 <template>
   <div>
     <el-alert type="info" :closable="false" style="margin-bottom:16px" title="配置并测试支付渠道：支付宝/微信/PayPal 需填写真实商户配置后保存，点击「测试连接」验证是否可用。敏感密钥将加密存储。" />
+    <div class="toolbar">
+      <b>支付渠道配置</b>
+      <el-button type="primary" @click="openAdd">新增渠道</el-button>
+    </div>
+
     <div class="channel-grid">
       <el-card v-for="c in channels" :key="c.provider" shadow="never" class="channel-card">
         <div class="channel-head">
@@ -31,17 +36,36 @@
         </div>
       </el-card>
     </div>
+
+    <!-- 新增渠道对话框 -->
+    <el-dialog v-model="addDialog" title="新增渠道" width="440px">
+      <p style="color:#8794a8;font-size:13px;margin:0 0 14px">选择要接入的支付渠道（仅支持后端已实现的类型）：</p>
+      <el-form label-width="90px">
+        <el-form-item label="渠道类型">
+          <el-select v-model="addProvider" style="width:100%">
+            <el-option v-for="p in availableProviders" :key="p" :label="nameOf(p) + '（' + descOf(p) + '）'" :value="p" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="addDialog=false">取消</el-button>
+        <el-button type="primary" @click="doAdd">添加</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, markRaw } from 'vue';
+import { ref, onMounted, markRaw, computed } from 'vue';
 import { req } from '../api';
 import { ElMessage } from 'element-plus';
 import { CreditCard, Money, Iphone, Wallet } from '@element-plus/icons-vue';
 
 interface Channel { provider: string; enabled: boolean; fields: Record<string,string>; testing?: boolean; testResult?: any; }
 const channels = ref<Channel[]>([]);
+const addDialog = ref(false);
+const addProvider = ref('');
+const ALL_PROVIDERS = ['mock', 'wechat', 'alipay', 'paypal'];
 
 const meta: Record<string, { name: string; desc: string; icon: any; bg: string; color: string; fields: { key: string; label: string; type?: string; placeholder?: string }[] }> = {
   mock: { name: 'Mock 支付', desc: '开发阶段验证流程', icon: markRaw(CreditCard), bg: '#eef1f6', color: '#5f6b7d', fields: [] },
@@ -78,8 +102,28 @@ function iconColor(p: string) { return meta[p]?.color || '#5f6b7d'; }
 function fieldsOf(p: string) { return meta[p]?.fields || []; }
 
 async function load() {
-  try { const d: any = await req('/admin/payment-channels'); channels.value = d.channels.map((c: any) => ({ provider: c.provider, enabled: !!c.enabled, fields: {} })); }
-  catch (e: any) { ElMessage.error(e.message); }
+  try {
+    const d: any = await req('/admin/payment-channels');
+    const existing = d.channels.map((c: any) => ({ provider: c.provider, enabled: !!c.enabled, fields: {} }));
+    // 若后端还没存任何渠道，则展示全部可支持渠道（默认 mock 关闭态），便于一次性配置
+    const providers = existing.length ? existing : ALL_PROVIDERS.map((p) => ({ provider: p, enabled: false, fields: {} }));
+    channels.value = providers;
+  } catch (e: any) { ElMessage.error(e.message); }
+}
+const availableProviders = computed(() => {
+  const existing = channels.value.map((c) => c.provider);
+  return ALL_PROVIDERS.filter((p) => !existing.includes(p));
+});
+function openAdd() {
+  if (!availableProviders.value.length) { ElMessage.warning('所有支持的渠道已添加'); return; }
+  addProvider.value = availableProviders.value[0];
+  addDialog.value = true;
+}
+async function doAdd() {
+  if (!addProvider.value) return;
+  channels.value.push({ provider: addProvider.value, enabled: false, fields: {} });
+  addDialog.value = false;
+  ElMessage.success('已添加 ' + nameOf(addProvider.value) + '，请填写配置后保存');
 }
 async function saveChannel(c: Channel) {
   try { await req('/admin/payment-channels/' + c.provider, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: c.enabled, config: c.fields }) }); ElMessage.success('已保存 ' + c.provider); }
@@ -95,6 +139,8 @@ onMounted(load);
 </script>
 
 <style scoped>
+.toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.toolbar b { font-size: 16px; }
 .channel-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
 .channel-card { border-radius: 14px; border: 1px solid #e8ecf3; }
 .channel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }

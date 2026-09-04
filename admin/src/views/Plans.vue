@@ -15,10 +15,11 @@
       <el-table-column prop="zipQuota" label="ZIP" width="80" />
       <el-table-column label="单次上限" width="90"><template #default="{row}">{{ fmtMB(row.maxBytes) }}</template></el-table-column>
       <el-table-column label="状态" width="90"><template #default="{row}"><el-tag :type="row.isActive?'success':'info'" size="small">{{ row.isActive?'启用':'停用' }}</el-tag></template></el-table-column>
-      <el-table-column label="操作" width="150" fixed="right">
+      <el-table-column label="操作" width="210" fixed="right">
         <template #default="{row}">
-          <el-button size="small" @click="openEdit(row)">编辑</el-button>
-          <el-button size="small" type="danger" @click="toggle(row)">{{ row.isActive?'停用':'启用' }}</el-button>
+          <el-button size="small" type="primary" link @click="openEdit(row)">编辑</el-button>
+          <el-button size="small" :type="row.isActive ? 'warning' : 'success'" link @click="toggle(row)">{{ row.isActive ? '停用' : '启用' }}</el-button>
+          <el-button size="small" type="danger" link @click="remove(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -44,7 +45,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { req } from '../api';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 const plans = ref<any[]>([]);
 const loading = ref(false);
@@ -73,8 +74,21 @@ async function save() {
   } catch (e: any) { ElMessage.error(e.message); }
 }
 async function toggle(row: any) {
-  try { await req('/admin/plans/' + row.code, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...row, isActive: !row.isActive }) }); ElMessage.success('已更新'); load(); }
-  catch (e: any) { ElMessage.error(e.message); }
+  try {
+    const payload = { ...row, isActive: !row.isActive };
+    await req('/admin/plans/' + row.code, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    ElMessage.success('已' + (row.isActive ? '停用' : '启用'));
+    load();
+  } catch (e: any) { ElMessage.error(e.message); }
+}
+async function remove(row: any) {
+  try {
+    await ElMessageBox.confirm(`确定删除套餐「${row.name}」吗？该操作会停用该套餐，不可恢复。`, '删除确认', { type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消' });
+  } catch { return; }
+  try {
+    await req('/admin/plans/' + row.code, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
+    ElMessage.success('已删除'); load();
+  } catch (e: any) { ElMessage.error(e.message); }
 }
 onMounted(load);
 </script>

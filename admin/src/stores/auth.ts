@@ -4,8 +4,8 @@ import { req, setToken, clearToken, getToken } from '../api';
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: getToken(),
-    email: '',
-    adminUser: '',
+    email: localStorage.getItem('pgx_admin_email') || '',
+    adminUser: localStorage.getItem('pgx_admin_user') || '',
     loginLoading: false,
   }),
   getters: {
@@ -21,6 +21,8 @@ export const useAuthStore = defineStore('auth', {
         this.email = d.user?.username || username;
         setToken(d.token);
         this.adminUser = username;
+        localStorage.setItem('pgx_admin_user', username);
+        localStorage.setItem('pgx_admin_email', this.email);
       } finally {
         this.loginLoading = false;
       }
@@ -32,6 +34,9 @@ export const useAuthStore = defineStore('auth', {
         this.token = d.token;
         this.email = d.user?.email || email;
         setToken(d.token);
+        this.adminUser = '';
+        localStorage.setItem('pgx_admin_email', this.email);
+        localStorage.removeItem('pgx_admin_user');
       } finally {
         this.loginLoading = false;
       }
@@ -41,6 +46,8 @@ export const useAuthStore = defineStore('auth', {
       this.email = '';
       this.adminUser = '';
       clearToken();
+      localStorage.removeItem('pgx_admin_email');
+      localStorage.removeItem('pgx_admin_user');
     },
   },
 });
