@@ -359,6 +359,16 @@ async function handle(msg, sender) {
       }
     }
 
+    /* 公开站点配置：公告/维护/站点（无需登录） */
+    case C.MSG.GET_PUBLIC_CONFIG: {
+      try {
+        const config = await Billing.publicConfig();
+        return { ok: true, config };
+      } catch (e) {
+        return { ok: false, message: (e && e.message) || '获取公告失败', code: (e && e.code) };
+      }
+    }
+
     case C.MSG.BILLING_CHECKOUT: {
       // 购买/升级：创建订单；mock 渠道直接支付
       try {

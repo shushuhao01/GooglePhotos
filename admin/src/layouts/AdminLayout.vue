@@ -30,8 +30,8 @@
           <el-tag type="success" effect="light">● 服务正常</el-tag>
           <el-dropdown @command="onCommand">
             <span class="user-chip">
-              <el-avatar size="small">{{ (auth.email || 'A').slice(0,1).toUpperCase() }}</el-avatar>
-              {{ auth.email || '未登录' }}
+              <el-avatar size="small">{{ (auth.adminUser || auth.email || 'A').slice(0,1).toUpperCase() }}</el-avatar>
+              {{ auth.adminUser || auth.email || '未登录' }}
               <el-icon><ArrowDown /></el-icon>
             </span>
             <template #dropdown>

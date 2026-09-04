@@ -24,7 +24,19 @@
       </el-form>
     </el-card>
     <el-card shadow="never" class="panel-card" style="margin-top:16px">
-      <div class="toolbar"><b>管理员邮箱</b><el-button @click="saveAdmins">保存<br>● 列表内邮箱登录即为管理员</el-button></div>
+      <div class="toolbar"><b>管理员账号</b><el-button @click="saveAdminCred">保存</el-button></div>
+      <el-alert type="warning" :closable="false" style="margin-bottom:12px" title="用管理员账号+密码登录本后台（默认 admin/admin123）。修改后请用新账号重新登录。" />
+      <el-form label-position="top">
+        <el-form-item label="管理员账号">
+          <el-input v-model="adminCred.username" placeholder="admin" />
+        </el-form-item>
+        <el-form-item label="新密码（留空则不修改）">
+          <el-input v-model="adminCred.password" type="password" show-password placeholder="至少 6 位，留空保持不变" />
+        </el-form-item>
+      </el-form>
+    </el-card>
+    <el-card shadow="never" class="panel-card" style="margin-top:16px">
+      <div class="toolbar"><b>管理员邮箱</b><el-button @click="saveAdmins">保存</el-button></div>
       <el-alert type="warning" :closable="false" style="margin-bottom:12px" title="在此添加的管理员邮箱可登录管理后台（无需改服务器 .env）" />
       <template v-for="(mail, i) in adminEmails" :key="i">
         <div class="admin-row">
@@ -46,6 +58,7 @@ const announcement = ref<any>({ title: '', content: '', enabled: false });
 const maintenance = ref<any>({ enabled: false, message: '系统维护中' });
 const site = ref<any>({ supportEmail: '', website: '' });
 const adminEmails = ref<string[]>([]);
+const adminCred = ref<any>({ username: 'admin', password: '' });
 
 async function load() {
   try {
@@ -60,9 +73,19 @@ async function load() {
     const d: any = await req('/admin/admin-emails');
     adminEmails.value = d.emails || [];
   } catch (e: any) { /* 接口暂不可用时不阻塞 */ }
+  try {
+    const d: any = await req('/admin/admin-credential');
+    adminCred.value = { username: d.username || 'admin', password: '' };
+  } catch (e: any) { /* 默认 */ }
 }
 async function saveConfig(key: string, value: any) {
   try { await req('/admin/system-configs/' + key, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ value }) }); ElMessage.success('已保存'); }
+  catch (e: any) { ElMessage.error(e.message); }
+}
+async function saveAdminCred() {
+  const payload: any = { username: adminCred.value.username.trim() };
+  if (adminCred.value.password) payload.password = adminCred.value.password;
+  try { await req('/admin/admin-credential', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); ElMessage.success('管理员账号已保存'); adminCred.value.password = ''; }
   catch (e: any) { ElMessage.error(e.message); }
 }
 async function saveAdmins() {

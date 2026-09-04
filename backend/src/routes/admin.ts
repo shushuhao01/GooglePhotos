@@ -11,6 +11,7 @@ import { zipService } from '../services/ZipService.js';
 import { providerFor, PROVIDERS } from '../payments/index.js';
 import { encryptConfig, decryptConfig } from '../utils/cryptoConfig.js';
 import { billingService } from '../services/BillingService.js';
+import { getAdminCredential, setAdminCredential } from '../services/AuthService.js';
 
 const r = Router();
 const planRepo = () => AppDataSource.getRepository(Plan);
@@ -89,6 +90,17 @@ r.get('/admin/admin-emails', adminAuth, handler(async (_req, res) => {
 
 r.put('/admin/admin-emails', adminAuth, handler(async (req, res) => {
   const d = await systemConfigService.setAdminEmails(req.body?.emails || []);
+  return ok(res, d);
+}));
+
+/* ---------- 管理员账号密码（admin/admin123 可改） ---------- */
+r.get('/admin/admin-credential', adminAuth, handler(async (_req, res) => {
+  const cred = await getAdminCredential();
+  return ok(res, { username: cred.username });
+}));
+
+r.put('/admin/admin-credential', adminAuth, handler(async (req, res) => {
+  const d = await setAdminCredential(String(req.body?.username || ''), String(req.body?.password || ''));
   return ok(res, d);
 }));
 

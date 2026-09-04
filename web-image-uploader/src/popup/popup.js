@@ -92,6 +92,8 @@
     if (state.auth && state.auth.connected && !state.auth.useMock) loadExistingAlbums(false);
     // 初始化会员/额度栏
     refreshBilling();
+    // 公告/维护横幅
+    loadAnnouncement();
 
     if (r.scan && Array.isArray(r.scan.candidates) && r.scan.candidates.length) {
       state.scan = r.scan;
@@ -740,6 +742,39 @@
       renderBilling(st, state.billingLoggedIn);
     } catch (e) { renderBilling(null, false); }
   }
+
+  /* ---------- 公告/维护横幅 ---------- */
+  async function loadAnnouncement() {
+    const banner = $('announce-banner');
+    const text = $('announce-text');
+    const close = $('announce-close');
+    if (!banner || !text) return;
+    try {
+      const r = await send({ type: 'get_public_config' });
+      const cfg = (r && r.ok && r.config) || {};
+      // 维护模式提示（优先）
+      if (cfg.maintenance && cfg.maintenance.enabled) {
+        text.textContent = '维护：' + (cfg.maintenance.message || '系统维护中');
+        banner.classList.remove('hidden', 'maint');
+        banner.classList.add('maint');
+        return;
+      }
+      // 公告
+      const ann = cfg.announcement || {};
+      const title = ann.title || '';
+      const content = ann.content || '';
+      const enabled = ann.enabled;
+      if (enabled && (title || content)) {
+        text.textContent = title ? (content ? `${title}：${content}` : title) : content;
+        banner.classList.remove('hidden', 'maint');
+      } else {
+        banner.classList.add('hidden');
+      }
+    } catch (e) {
+      banner.classList.add('hidden');
+    }
+    if (close) close.addEventListener('click', () => banner.classList.add('hidden'));
+  }
   function bindBilling() {
     $('btn-billing-login').addEventListener('click', () => openUpgrade(true));
     $('btn-upgrade').addEventListener('click', () => openUpgrade(false));
@@ -810,14 +845,14 @@
     ul.innerHTML = '';
     const plans = (r && r.ok ? r.plans : []) || [];
     for (const p of plans) {
-      if (!p.is_active && p.is_active !== undefined) continue;
+      if (!p.isActive && p.isActive !== undefined) continue;
       if (p.code === 'free') continue;
       const li = document.createElement('li');
       li.className = 'plan-item';
       const info = document.createElement('div');
       const nm = document.createElement('strong'); nm.textContent = p.name;
       const meta = document.createElement('span'); meta.className = 'plan-meta';
-      meta.textContent = `¥${(p.price_cents / 100).toFixed(0)} · 上传${p.upload_quota}次`;
+      meta.textContent = `¥${((p.priceCents ?? p.price_cents ?? 0) / 100).toFixed(0)} · 上传${(p.uploadQuota ?? p.upload_quota ?? 0)}次`;
       info.appendChild(nm); info.appendChild(meta);
       const buy = document.createElement('button');
       buy.className = 'mini-btn primary';

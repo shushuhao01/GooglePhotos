@@ -78,7 +78,7 @@ export class BillingService {
     const cfg = await loadChannelConfig(provider);
     let parsed: { eventId: string; orderNo: string; paid: boolean; amountCents?: number; providerTradeNo?: string | null };
     try {
-      parsed = paymentProvider.verifyWebhook(headers, rawBody, cfg);
+      parsed = await paymentProvider.verifyWebhook(headers, rawBody, cfg);
     } catch (e: any) {
       throw new AppError(400, 'WEBHOOK_VERIFY_FAIL', '回调验签失败：' + e.message);
     }

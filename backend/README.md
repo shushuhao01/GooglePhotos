@@ -5,7 +5,7 @@
 ## 已实现
 
 - **分层架构**：`entities / services / routes / middleware / config / utils / payments` 分层，TypeORM `DataSource` 统一管理 11 张表。
-- **认证与鉴权**：JWT Bearer 中间件（用户 `auth` + 管理员 `adminAuth`）；开发环境邮箱免密登录 `dev-login`（生产自动关闭）、邮箱+密码注册/登录。
+- **认证与鉴权**：JWT Bearer 中间件（用户 `auth` + 管理员 `adminAuth`）；开发环境邮箱免密登录 `dev-login`（生产自动关闭）、邮箱+密码注册/登录；**后台管理员账号+密码登录** `admin-login`（默认 `admin / admin123`，可在「系统设置 → 管理员账号」修改）。
 - **权益系统（核心）**：基础免费额度（每月各 1 次）+ 有效订阅套餐配额叠加；`entitlements` 表预扣 / 确认 / 释放，事务保证一致性；下单成功后自动叠加套餐额度，退款自动扣回。
 - **计费单元**：一次任务计一次机会（`upload` / `download` / `zip`），由服务端裁决。
 - **支付抽象层**：统一 `PaymentProvider` 接口，适配器 `MockProvider` / `AlipayProvider`（RSA2 签名，`alipay.trade.precreate` 二维码 / `wap.pay` 手机网站，异步回调验签、主动查单、连接测试）/ `WeChatProvider`（APIv3，Native / H5 下单，AES-256-GCM 回调解密、主动查单、连接测试）/ `PayPalProvider`（Checkout Orders + Webhook 验签 + 主动查单 + 连接测试）。
@@ -48,11 +48,12 @@ npm start                       # 生产：node dist/app.js
 
 ## API 一览（前缀 `/api/v1`）
 
-- `POST /auth/dev-login`（开发）、`POST /auth/register`、`POST /auth/login`、`GET /me`
+- `POST /auth/admin-login`（管理员账号+密码，默认 admin/admin123）、`POST /auth/dev-login`（开发）、`POST /auth/register`、`POST /auth/login`、`GET /me`
+- `GET /public/config`（公告/维护/站点公开只读）
 - `GET /plans`、`GET /entitlements/status`、`POST /entitlements/reserve|commit|release`
 - `POST /billing/checkout`、`POST /billing/mock-pay/:orderNo`、`GET /billing/orders`、`GET /billing/orders/:orderNo`、`POST /billing/orders/:orderNo/reconcile`、`POST /billing/refund`、`POST /billing/webhooks/:provider`
 - `POST /zip/jobs`、`GET /zip/jobs/:jobNo`、`GET /proxy/fetch`（图片中转，SSRF 防护）
-- `GET /admin/dashboard`、`GET/POST/PUT/DELETE /admin/plans`、`GET/PUT /admin/users`、`GET/POST /admin/orders`、`GET/PUT /admin/payment-channels`、`POST /admin/payment-channels/:provider/test|test-saved`、`GET /admin/audit-logs|risk-rules|system-configs`、`PUT /admin/system-configs/:key`
+- `GET /admin/dashboard`、`GET/POST/PUT/DELETE /admin/plans`、`GET/PUT /admin/users`、`GET/POST /admin/orders`、`GET/PUT /admin/admin-credential`（管理员账号/密码，默认 admin/admin123）、`GET/PUT /admin/admin-emails`（管理员邮箱列表）、`GET/PUT /admin/payment-channels`、`POST /admin/payment-channels/:provider/test|test-saved`、`GET /admin/audit-logs|risk-rules|system-configs`、`PUT /admin/system-configs/:key`
 - `DELETE /account`（删除账号关联数据）
 
 ## 测试

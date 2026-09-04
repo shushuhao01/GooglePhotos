@@ -153,7 +153,8 @@ INSERT IGNORE INTO plans(code,name,price_cents,billing_period,upload_quota,downl
 INSERT IGNORE INTO system_configs(config_key,value,description) VALUES
 ('announcement', JSON_OBJECT('title','','content','','enabled',CAST('false' AS JSON)), '公告'),
 ('maintenance', JSON_OBJECT('enabled',CAST('false' AS JSON),'message','系统维护中，请稍后再试'), '维护开关'),
-('site', JSON_OBJECT('supportEmail','','website',''), '站点信息');
+('site', JSON_OBJECT('supportEmail','','website',''), '站点信息'),
+('admin_credential', JSON_OBJECT('username','admin','password_hash','240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'), '后台管理员账号（默认 admin/admin123）');
 
 INSERT IGNORE INTO risk_rules(`key`,name,rule_type,value,window_seconds,enabled,action) VALUES
 ('register-rate','注册限流','rate_limit',10,3600,1,'challenge'),

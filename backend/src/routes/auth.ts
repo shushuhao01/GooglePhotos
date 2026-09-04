@@ -1,10 +1,16 @@
 import { Router } from 'express';
-import { authService } from '../services/AuthService.js';
+import { authService, verifyAdminCredential } from '../services/AuthService.js';
 import { auth } from '../middleware/auth.js';
 import { handler } from '../utils/handler.js';
 import { ok } from '../utils/response.js';
 
 const r = Router();
+
+/* 管理员后台账号+密码登录（admin/admin123，可在系统设置修改） */
+r.post('/auth/admin-login', handler(async (req, res) => {
+  const d = await authService.adminLogin(String(req.body.username || ''), String(req.body.password || ''));
+  return ok(res, d);
+}));
 
 /* 开发环境邮箱登录（生产仅对管理员邮箱开放） */
 r.post('/auth/dev-login', handler(async (req, res) => {

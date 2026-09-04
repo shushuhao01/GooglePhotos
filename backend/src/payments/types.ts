@@ -30,7 +30,7 @@ export interface PaymentProvider {
   validateConfig(config: ChannelConfig): string[];
   createCheckout(input: CheckoutInput, config: ChannelConfig): Promise<CheckoutResult>;
   /* 验签回调：headers(小写) / rawBody / config，返回成功处理结果或抛错 */
-  verifyWebhook(headers: Record<string, string | undefined>, body: string, config: ChannelConfig): { eventId: string; orderNo: string; paid: boolean; amountCents?: number; providerTradeNo?: string | null };
+  verifyWebhook(headers: Record<string, string | undefined>, body: string, config: ChannelConfig): { eventId: string; orderNo: string; paid: boolean; amountCents?: number; providerTradeNo?: string | null } | Promise<{ eventId: string; orderNo: string; paid: boolean; amountCents?: number; providerTradeNo?: string | null }>;
   /* 主动查单 */
   queryOrder(orderNo: string, config: ChannelConfig): Promise<OrderQueryResult>;
   /* 连接测试：返回逐项检测清单（与 CRM/Nova-key testChannel 一致） */

@@ -139,6 +139,12 @@
     return data.plans || [];
   }
 
+  /* ---------- 公开站点配置（公告/维护/站点，无需登录） ---------- */
+  async function publicConfig() {
+    const data = await get('/public/config');
+    return data.config || {};
+  }
+
   /* 校验后端连通性：发起一个匿名可访问的请求（plans 无需鉴权） */
   async function testConnection(baseUrl) {
     const saved = B._settings;
@@ -174,6 +180,7 @@
   B.mockPay = mockPay;
   B.orders = orders;
   B.plans = plans;
+  B.publicConfig = publicConfig;
   B.testConnection = testConnection;
   B.setSettings = setSettings;
   B.quotaMessage = quotaMessage;

@@ -27,7 +27,13 @@ export class PayPalProvider implements PaymentProvider {
   }
   private cfg(c: ChannelConfig) {
     const cc = c as unknown as Record<string, string>;
-    return { clientId: cc.clientId || '', clientSecret: cc.clientSecret || '', environment: cc.environment || 'sandbox', notifyUrl: cc.notifyUrl || '' };
+    return {
+      clientId: cc.clientId || '',
+      clientSecret: cc.clientSecret || '',
+      environment: cc.environment || 'sandbox',
+      notifyUrl: cc.notifyUrl || '',
+      webhookId: cc.webhookId || '',
+    };
   }
   private async token(c: ReturnType<PayPalProvider['cfg']>): Promise<string> {
     const basic = Buffer.from(`${c.clientId}:${c.clientSecret}`).toString('base64');
@@ -54,14 +60,40 @@ export class PayPalProvider implements PaymentProvider {
     return { provider: this.name, checkoutUrl: (resp.links || []).find((l: any) => l.rel === 'approve')?.href, tradeNo: resp.id };
   }
 
-  verifyWebhook(_headers: Record<string, string | undefined>, body: string, config: ChannelConfig) {
+  async verifyWebhook(headers: Record<string, string | undefined>, body: string, config: ChannelConfig) {
     const c = this.cfg(config);
     const json = JSON.parse(body || '{}');
     const eventType = String(json.event_type || '');
     const resource: any = json.resource || {};
-    // PayPal Webhook 验签需调用 /v1/notifications/verify-webhook-signature（配置 webhookId）
-    // 此处做基础字段解析 + 订单状态判断，生产需配置 webhookId 严格验签
+    // 严格验签：配置 webhookId 时调用 PayPal 验签接口，防止伪造回调
+    if (c.webhookId && c.clientId && c.clientSecret) {
+      const accessToken = await this.token(c);
+      const verifyResp = await fetch(base(c.environment) + '/v1/notifications/verify-webhook-signature', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({
+          auth_algo: headers['paypal-auth-algo'] || '',
+          cert_url: headers['paypal-cert-url'] || '',
+          transmission_id: headers['paypal-transmission-id'] || '',
+          transmission_sig: headers['paypal-transmission-sig'] || '',
+          transmission_time: headers['paypal-transmission-time'] || '',
+          webhook_id: c.webhookId,
+          webhook_event: json,
+        }),
+      });
+      const vr: any = await verifyResp.json().catch(() => ({}));
+      if (!verifyResp.ok || vr.verification_status !== 'SUCCESS') {
+        throw new Error('PayPal 回调验签失败');
+      }
+    }
     const paid = ['PAYMENT.CAPTURE.COMPLETED', 'CHECKOUT.ORDER.APPROVED'].includes(eventType);
+    if (eventType === 'PAYMENT.CAPTURE.DENIED') return {
+      eventId: String(json.id || Date.now()),
+      orderNo: String(resource.reference_id || resource.supplementary_data?.related_ids?.order_id || resource.id || ''),
+      paid: false,
+      amountCents: Math.round(Number(resource.amount?.value || 0) * 100),
+      providerTradeNo: resource.id || null,
+    };
     return {
       eventId: String(json.id || Date.now()),
       orderNo: String(resource.reference_id || resource.supplementary_data?.related_ids?.order_id || resource.id || ''),

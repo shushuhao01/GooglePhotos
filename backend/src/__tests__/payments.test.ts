@@ -29,9 +29,9 @@ test('paypal validateConfig requires client credentials', async () => {
   assert.deepEqual(missing, ['clientId', 'clientSecret']);
 });
 
-test('mock webhook parses paid state', () => {
+test('mock webhook parses paid state', async () => {
   const p = providerFor('mock');
-  const r = p.verifyWebhook({}, JSON.stringify({ orderNo: 'X1', paid: true }), {});
+  const r = await p.verifyWebhook({}, JSON.stringify({ orderNo: 'X1', paid: true }), {});
   assert.equal(r.orderNo, 'X1');
   assert.equal(r.paid, true);
 });

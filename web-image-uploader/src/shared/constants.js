@@ -42,6 +42,7 @@
       BILLING_PLANS: 'billing_plans',
       BILLING_CHECKOUT: 'billing_checkout',
       BILLING_TEST: 'billing_test',
+      GET_PUBLIC_CONFIG: 'get_public_config',
       // Service Worker -> popup（事件）
       TASK_EVENT: 'task_event',
       AUTH_CHANGED: 'auth_changed',

@@ -62,9 +62,10 @@ const meta: Record<string, { name: string; desc: string; icon: any; bg: string; 
     { key: 'method', label: '支付方式', placeholder: 'native(扫码) 或 h5' },
   ] },
   paypal: { name: 'PayPal', desc: '国际卡 & PayPal 钱包', icon: markRaw(Wallet), bg: '#eaf0f9', color: '#3166c0', fields: [
-    { key: 'clientId', label: 'Client ID' },
-    { key: 'clientSecret', label: 'Client Secret', type: 'password' },
+    { key: 'clientId', label: 'Client ID', placeholder: 'PayPal app Client ID' },
+    { key: 'clientSecret', label: 'Client Secret', type: 'password', placeholder: 'PayPal app Secret' },
     { key: 'environment', label: '环境', placeholder: 'sandbox 或 live' },
+    { key: 'webhookId', label: 'Webhook ID(可选，严格验签)', placeholder: 'PayPal Webhook 的 ID，填了才校验回调签名' },
     { key: 'notifyUrl', label: 'Webhook 地址(可选)' },
   ] },
 };
