@@ -465,6 +465,27 @@
       return t ? publicTask(t) : null;
     },
 
+    /** 删除已结束任务记录；进行中、暂停和排队任务始终保留。历史记录不受影响。 */
+    async clearTasks(filter) {
+      const wanted = filter === 'failed' ? new Set(['failed'])
+        : filter === 'completed' ? new Set(['completed'])
+        : new Set(['completed', 'failed', 'cancelled']);
+      let removed = 0;
+      for (const [id, task] of mem.tasks.entries()) {
+        if (!wanted.has(task.status) || (mem.inflight.get(id) || 0) > 0) continue;
+        mem.tasks.delete(id);
+        mem.stopped.delete(id);
+        mem.inflight.delete(id);
+        const timer = mem.bucketTimers.get(id);
+        if (timer) clearTimeout(timer);
+        mem.bucketTimers.delete(id);
+        mem.buckets.delete(id);
+        removed++;
+      }
+      if (removed) await persistNow();
+      return { ok: true, removed };
+    },
+
     /**
      * 创建并启动上传任务
      * payload: { items:[{url,fileName,width,height,pageUrl}], albumMode, albumId?, albumName?, tabId?, pageUrl, billing? }

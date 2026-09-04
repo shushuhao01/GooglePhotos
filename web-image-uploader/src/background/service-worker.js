@@ -448,6 +448,8 @@ async function handle(msg, sender) {
       return { ok: Uploads.resumeTask(msg.taskId) };
     case C.MSG.RETRY_ITEM:
       return { ok: Uploads.retryItem(msg.taskId, msg.itemId) };
+    case C.MSG.CLEAR_TASKS:
+      return await Uploads.clearTasks(msg.filter || 'all');
     case C.MSG.RETRY_FAILED:
       return { ok: Uploads.retryFailed(msg.taskId) };
 

@@ -27,6 +27,7 @@
       RETRY_ITEM: 'retry_item',
       RETRY_FAILED: 'retry_failed',
       RETRY_HISTORY: 'retry_history',
+      CLEAR_TASKS: 'clear_tasks',
       LIST_HISTORY: 'list_history',
       CLEAR_HISTORY: 'clear_history',
       GET_SETTINGS: 'get_settings',

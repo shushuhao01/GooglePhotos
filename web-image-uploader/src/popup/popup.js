@@ -169,6 +169,8 @@
     $('btn-resume').addEventListener('click', () => taskCtrl('resume_task'));
     $('btn-cancel').addEventListener('click', () => taskCtrl('cancel_task'));
     $('btn-retry-failed').addEventListener('click', () => taskCtrl('retry_failed'));
+    $('btn-clear-completed').addEventListener('click', () => clearTasks('completed'));
+    $('btn-clear-failed').addEventListener('click', () => clearTasks('failed'));
     $('btn-clear-history').addEventListener('click', clearHistory);
     $('preview-close').addEventListener('click', closePreview);
     $('preview-max').addEventListener('click', togglePreviewMax);
@@ -1017,7 +1019,12 @@
   }
 
   function renderTaskView() {
-    const list = state.tasks;
+    const list = state.tasks || [];
+    const completed = list.filter((t) => t.status === 'completed').length;
+    const failed = list.filter((t) => t.status === 'failed').length;
+    $('btn-clear-completed').disabled = completed === 0;
+    $('btn-clear-failed').disabled = failed === 0;
+    $('task-clean-hint').textContent = (completed || failed) ? `已完成 ${completed} · 失败 ${failed}` : '';
     $('task-empty').classList.toggle('hidden', list.length > 0);
     $('task-detail').classList.toggle('hidden', !list.length);
     if (!list.length) return;
@@ -1141,6 +1148,17 @@
       const hintEl = $('task-cors-hint');
       if (hintEl) hintEl.remove();
     }
+  }
+
+  async function clearTasks(filter) {
+    const label = filter === 'completed' ? '已完成' : '失败';
+    const count = (state.tasks || []).filter((t) => t.status === filter).length;
+    if (!count || !confirm(`确定清理 ${count} 个${label}任务吗？历史记录不会删除。`)) return;
+    const r = await send({ type: 'clear_tasks', filter });
+    if (!r || !r.ok) { toast('清理失败', true); return; }
+    await loadTasks();
+    renderTaskView();
+    toast(`已清理 ${r.removed || 0} 个${label}任务`);
   }
 
   /* ---------- 历史 ---------- */
