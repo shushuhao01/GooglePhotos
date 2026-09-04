@@ -84,11 +84,14 @@ echo -e "${YELLOW}[4] 更新依赖...${NC}"
 echo -e "  ${YELLOW}[4.1] backend 依赖...${NC}"
 cd "$PROJECT_DIR/backend"
 npm install 2>&1 | tail -2
+# 修复宝塔/www 部署后 node_modules/.bin 工具缺失执行权限的问题（导致 tsc/vite Permission denied）
+chmod -R 755 "$PROJECT_DIR/backend/node_modules/.bin" 2>/dev/null || true
 echo -e "  ${GREEN}[OK] backend 依赖已更新${NC}"
 
 echo -e "  ${YELLOW}[4.2] admin 管理后台依赖...${NC}"
 cd "$PROJECT_DIR/admin"
 npm install 2>&1 | tail -2
+chmod -R 755 "$PROJECT_DIR/admin/node_modules/.bin" 2>/dev/null || true
 echo -e "  ${GREEN}[OK] admin 依赖已更新${NC}"
 
 echo -e "  ${YELLOW}[4.3] web-image-uploader 扩展无构建依赖（跳过）${NC}"
@@ -133,8 +136,8 @@ if command -v pm2 &> /dev/null; then
         pm2 restart web-image-billing 2>&1 | tail -3
         echo -e "  ${GREEN}[OK] 已重启 web-image-billing${NC}"
     else
-        pm2 start ecosystem.config.js 2>&1 | tail -3
-        echo -e "  ${GREEN}[OK] 已通过 ecosystem.config.js 启动${NC}"
+        pm2 start ecosystem.config.cjs 2>&1 | tail -3
+        echo -e "  ${GREEN}[OK] 已通过 ecosystem.config.cjs 启动${NC}"
     fi
     pm2 save 2>&1 | tail -1
     echo -e "  ${GREEN}[OK] PM2 进程列表已保存${NC}"
