@@ -24,6 +24,15 @@
       </el-form>
     </el-card>
     <el-card shadow="never" class="panel-card" style="margin-top:16px">
+      <div class="toolbar"><b>汇率换算</b><el-button @click="saveRates">保存</el-button></div>
+      <el-alert type="info" :closable="false" style="margin-bottom:12px" title="套餐价格以人民币(元)存储，PayPal 等外币渠道按此汇率自动换算为对应币种收款。调整后即时生效。" />
+      <el-form label-position="top" class="rates-grid">
+        <el-form-item v-for="k in rateKeys" :key="k" :label="'1 ' + k + ' = ? 人民币(元)'">
+          <el-input-number v-model="rates[k]" :min="0.001" :precision="4" :step="0.1" />
+        </el-form-item>
+      </el-form>
+    </el-card>
+    <el-card shadow="never" class="panel-card" style="margin-top:16px">
       <div class="toolbar"><b>管理员账号</b><el-button @click="saveAdminCred">保存</el-button></div>
       <el-alert type="warning" :closable="false" style="margin-bottom:12px" title="用管理员账号+密码登录本后台（默认 admin/admin123）。修改后请用新账号重新登录。" />
       <el-form label-position="top">
@@ -59,6 +68,8 @@ const maintenance = ref<any>({ enabled: false, message: '系统维护中' });
 const site = ref<any>({ supportEmail: '', website: '' });
 const adminEmails = ref<string[]>([]);
 const adminCred = ref<any>({ username: 'admin', password: '' });
+const rates = ref<any>({});
+const rateKeys = ['CNY', 'USD', 'EUR', 'GBP', 'JPY', 'HKD'];
 
 async function load() {
   try {
@@ -77,6 +88,10 @@ async function load() {
     const d: any = await req('/admin/admin-credential');
     adminCred.value = { username: d.username || 'admin', password: '' };
   } catch (e: any) { /* 默认 */ }
+  try {
+    const d: any = await req('/admin/fx-rates');
+    rates.value = { ...(d.defaults || {}), ...(d.rates || {}) };
+  } catch (e: any) { /* 汇率接口暂不可用时用默认 */ rates.value = { CNY: 1, USD: 7.2, EUR: 7.8, GBP: 8.5, JPY: 0.048, HKD: 0.92 }; }
 }
 async function saveConfig(key: string, value: any) {
   try { await req('/admin/system-configs/' + key, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ value }) }); ElMessage.success('已保存'); }
@@ -91,6 +106,12 @@ async function saveAdminCred() {
 async function saveAdmins() {
   const emails = adminEmails.value.map(s => s.trim()).filter(Boolean);
   try { await req('/admin/admin-emails', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ emails }) }); ElMessage.success('管理员邮箱已保存'); }
+  catch (e: any) { ElMessage.error(e.message); }
+}
+async function saveRates() {
+  const payload: any = {};
+  for (const k of rateKeys) if (rates.value[k] !== undefined) payload[k] = Number(rates.value[k]);
+  try { await req('/admin/fx-rates', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rates: payload }) }); ElMessage.success('汇率已保存'); }
   catch (e: any) { ElMessage.error(e.message); }
 }
 onMounted(load);

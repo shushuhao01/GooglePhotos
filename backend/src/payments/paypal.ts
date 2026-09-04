@@ -52,12 +52,14 @@ export class PayPalProvider implements PaymentProvider {
   async createCheckout(input: CheckoutInput, config: ChannelConfig) {
     const c = this.cfg(config);
     const accessToken = await this.token(c);
+    // 收款币种：默认美元（PayPal 支持多币种，可传 USD/EUR/GBP 等）
+    const currency = String(input.currency || 'USD').toUpperCase();
     const body = {
       intent: 'CAPTURE',
-      purchase_units: [{ reference_id: input.orderNo, amount: { currency_code: 'USD', value: (input.amountCents / 100).toFixed(2) }, description: input.title }],
+      purchase_units: [{ reference_id: input.orderNo, amount: { currency_code: currency, value: (input.amountCents / 100).toFixed(2) }, description: input.title }],
     };
     const resp = await this.req('POST', '/v2/checkout/orders', base(c.environment) + '/v2/checkout/orders', body, accessToken);
-    return { provider: this.name, checkoutUrl: (resp.links || []).find((l: any) => l.rel === 'approve')?.href, tradeNo: resp.id };
+    return { provider: this.name, checkoutUrl: (resp.links || []).find((l: any) => l.rel === 'approve')?.href, tradeNo: resp.id, currency };
   }
 
   async verifyWebhook(headers: Record<string, string | undefined>, body: string, config: ChannelConfig) {

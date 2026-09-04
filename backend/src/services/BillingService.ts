@@ -11,6 +11,7 @@ import { env } from '../config/env.js';
 import { AppError, NotFound } from '../utils/response.js';
 import { decryptConfig, isEncrypted } from '../utils/cryptoConfig.js';
 import { entitlementService } from './EntitlementService.js';
+import { rateService } from './RateService.js';
 import { logger } from '../config/logger.js';
 
 const orderRepo = () => AppDataSource.getRepository(Order);
@@ -54,15 +55,20 @@ export class BillingService {
     }
     const orderNo = genOrderNo();
     const notifyUrl = `${env.appBaseUrl}/api/v1/billing/webhooks/${provider}`;
+    // 按渠道收款币种换算金额：人民币渠道直接用套餐人民币分；外币渠道(PayPal)换算为 USD
+    const payCurrency = rateService.currencyForProvider(provider);
+    const payAmountCents = payCurrency === 'CNY'
+      ? plan.priceCents
+      : await rateService.toForeignCents(plan.priceCents, payCurrency);
     const order = await orderRepo().save({ orderNo, userId, planId: plan.id, provider, status: 'pending', amountCents: plan.priceCents, idempotencyKey: idempotencyKey || null });
     let checkout: any;
     if (provider === 'mock') {
       paymentProvider.validateConfig(cfg);
-      checkout = await paymentProvider.createCheckout({ orderNo, amountCents: plan.priceCents, title: plan.name, notifyUrl }, cfg);
+      checkout = await paymentProvider.createCheckout({ orderNo, amountCents: payAmountCents, title: plan.name, notifyUrl, currency: payCurrency }, cfg);
     } else {
-      checkout = await paymentProvider.createCheckout({ orderNo, amountCents: plan.priceCents, title: plan.name, notifyUrl }, cfg);
+      checkout = await paymentProvider.createCheckout({ orderNo, amountCents: payAmountCents, title: plan.name, notifyUrl, currency: payCurrency }, cfg);
     }
-    return { orderNo: order.orderNo, amountCents: order.amountCents, provider, checkout };
+    return { orderNo: order.orderNo, amountCents: order.amountCents, provider, payAmountCents, payCurrency, checkout };
   }
 
   async mockPay(userId: number, orderNo: string) {
@@ -95,10 +101,16 @@ export class BillingService {
     const order = await orderRepo().findOne({ where: { orderNo: parsed.orderNo } });
     if (!order) return { ok: true, accepted: true, duplicate: false };
     if (order.status === 'paid') return { ok: true, duplicate: true };
-    // 金额核对
-    if (parsed.amountCents && parsed.amountCents !== order.amountCents) {
-      logger.error('webhook amount mismatch', { orderNo: parsed.orderNo, got: parsed.amountCents, expected: order.amountCents });
-      return { ok: true, accepted: true, duplicate: false };
+    // 金额核对：order.amountCents 存的是人民币分；paypal 等外币渠道回调返回的是外币分，
+    // 需按渠道币种换算回人民币分再比对（允许 ±1 分误差，避免汇率四舍五入造成失败）。
+    if (parsed.amountCents && parsed.amountCents > 0) {
+      const payCurrency = rateService.currencyForProvider(provider);
+      const expectedCny = payCurrency === 'CNY' ? order.amountCents : await rateService.toCnyCents(parsed.amountCents, payCurrency);
+      const tolerance = Math.max(1, Math.round(order.amountCents * 0.01)); /* ±1% */
+      if (Math.abs(expectedCny - order.amountCents) > tolerance) {
+        logger.error('webhook amount mismatch', { orderNo: parsed.orderNo, gotForeign: parsed.amountCents, gotCny: expectedCny, expected: order.amountCents, currency: payCurrency });
+        return { ok: true, accepted: true, duplicate: false };
+      }
     }
     await orderRepo().update({ id: order.id, status: 'pending' }, { status: 'paid', paidAt: new Date(), providerTradeNo: parsed.providerTradeNo || order.providerTradeNo, idempotencyKey: order.idempotencyKey });
     await this.grantPlanByOrder({ ...order, status: 'paid', providerTradeNo: parsed.providerTradeNo || null });

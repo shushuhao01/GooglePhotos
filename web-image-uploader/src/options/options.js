@@ -120,7 +120,8 @@
       historyDays: parseInt($('history-days').value, 10),
       billing: Object.assign({}, settings.billing, {
         baseUrl: $('billing-baseurl') ? $('billing-baseurl').value.trim() : (settings.billing && settings.billing.baseUrl) || '',
-        quoteEnabled: $('billing-quote') ? $('billing-quote').checked : !!(settings.billing && settings.billing.quoteEnabled)
+        // 免费发行版固定关闭额度校验；保留字段供未来商业版恢复。
+        quoteEnabled: false
       })
     });
     const r = await send({ type: 'save_settings', settings: s });

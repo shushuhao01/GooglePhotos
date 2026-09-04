@@ -7,6 +7,8 @@ export interface CheckoutInput {
   title: string;
   notifyUrl: string;
   description?: string;
+  /* 收款币种（人民币渠道=CNY，PayPal=USD），供支付平台下单使用 */
+  currency?: string;
 }
 
 export interface CheckoutResult {

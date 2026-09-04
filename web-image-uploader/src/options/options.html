@@ -9,7 +9,7 @@
 <div class="page" data-page-node-id="gAUqEGaC3c8Ox1QHEE4ZaQ">
   <header data-page-node-id="EghPFyXJ4LFN1isODXgfoe">
     <h1 data-page-node-id="L0DfSVE5rKwkskYSrZXa7E">网页图片上传器 · Web Image Uploader — 设置</h1>
-    <p class="sub" data-page-node-id="FVPhRIZdu7o0i9oC52RRAr">扫描、批量上传、下载并 ZIP 打包网页图片。设置修改后自动保存。</p>
+    <p class="sub" data-page-node-id="FVPhRIZdu7o0i9oC52RRAr">扫描、批量上传和下载网页图片。设置修改后自动保存。</p>
   </header>
 
   <section class="card" data-page-node-id="xq6HQsnpjjCiouwgPOWmYk">
@@ -164,7 +164,8 @@
     </div>
   </section>
 
-  <section class="card" data-page-node-id="billing">
+  <!-- 收费/会员配置暂不随免费发行版启用；代码保留，未来恢复商业版时可移除此 hidden。 -->
+  <section class="card" data-page-node-id="billing" hidden aria-hidden="true">
     <h2 data-page-node-id="billing-h2">收费与会员</h2>
     <div class="row" data-page-node-id="billing-row-base">
       <label for="billing-baseurl">收费后端地址</label>
@@ -180,8 +181,8 @@
     <div class="row" data-page-node-id="billing-row-quote">
       <label for="billing-quote" data-page-node-id="billing-quote-label">配额校验</label>
       <div class="field">
-        <label class="switch" data-page-node-id="billing-switch"><input type="checkbox" id="billing-quote" data-page-node-id="billing-quote-ck"><span></span> 上传前校验产品账号剩余额度（用完提示升级）</label>
-        <p class="tip" data-page-node-id="billing-tip-quote">未登录产品账号时，将跳过校验并放行本地上传。建议配合弹窗中的「登录」完成账号绑定。</p>
+        <label class="switch" data-page-node-id="billing-switch"><input type="checkbox" id="billing-quote" disabled data-page-node-id="billing-quote-ck"><span></span> 配额校验（当前免费版已暂停）</label>
+        <p class="tip" data-page-node-id="billing-tip-quote">当前版本不收费、不扣额度；该配置为未来商业版预留。</p>
       </div>
     </div>
     <div class="row" data-page-node-id="billing-row-login">

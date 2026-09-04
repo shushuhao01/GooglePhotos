@@ -63,7 +63,7 @@
     if (baseUrl && !/^https?:\/\//i.test(baseUrl)) baseUrl = 'https://' + baseUrl;
     out.billing = {
       baseUrl,
-      quoteEnabled: !!b.quoteEnabled,
+      quoteEnabled: false,
       loginMode: b.loginMode === 'creds' ? 'creds' : 'dev'
     };
     return out;

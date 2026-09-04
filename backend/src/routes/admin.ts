@@ -11,6 +11,7 @@ import { zipService } from '../services/ZipService.js';
 import { providerFor, PROVIDERS } from '../payments/index.js';
 import { encryptConfig, decryptConfig } from '../utils/cryptoConfig.js';
 import { billingService } from '../services/BillingService.js';
+import { rateService, DEFAULT_RATES } from '../services/RateService.js';
 import { getAdminCredential, setAdminCredential } from '../services/AuthService.js';
 
 const r = Router();
@@ -20,6 +21,7 @@ const orderRepo = () => AppDataSource.getRepository(Order);
 
 /* ---------- 套餐 ---------- */
 r.get('/admin/plans', adminAuth, handler(async (_req, res) => {
+  // 管理列表保留全部套餐(含已下架)，便于「启用/停用」切换；删除按钮做真正的硬删除
   const plans = await planRepo().find({ order: { priceCents: 'ASC' } });
   return ok(res, { plans });
 }));
@@ -40,7 +42,8 @@ r.post('/admin/plans', adminAuth, handler(async (req, res) => {
 r.put('/admin/plans/:code', adminAuth, handler(async (req, res) => {
   const b = req.body || {};
   await planRepo().update({ code: req.params.code }, {
-    name: String(b.name), priceCents: Math.max(0, Number(b.priceCents || 0)),
+    name: String(b.name), currency: String(b.currency || 'CNY'),
+    priceCents: Math.max(0, Number(b.priceCents || 0)),
     billingPeriod: b.billingPeriod || 'month', uploadQuota: Number(b.uploadQuota || 0),
     downloadQuota: Number(b.downloadQuota || 0), zipQuota: Number(b.zipQuota || 0),
     maxItems: Number(b.maxItems || 10), maxBytes: Number(b.maxBytes || 209715200),
@@ -51,8 +54,20 @@ r.put('/admin/plans/:code', adminAuth, handler(async (req, res) => {
 }));
 
 r.delete('/admin/plans/:code', adminAuth, handler(async (req, res) => {
-  await planRepo().update({ code: req.params.code }, { isActive: false });
-  return ok(res);
+  const code = String(req.params.code);
+  const plan = await planRepo().findOne({ where: { code } });
+  if (!plan) return ok(res, { deleted: false, message: '套餐不存在' });
+  // 检查是否已有订单/订阅引用（订单表 plan_id / 订阅表 plan_id 外键约束）
+  const refOrder = await orderRepo().count({ where: { planId: plan.id } });
+  const refSub = await AppDataSource.getRepository('Subscription').count({ where: { planId: plan.id } } as any);
+  if (refOrder > 0 || refSub > 0) {
+    // 已有交易记录，无法物理删除（会违反外键），改为下架（软删除）并明确告知
+    await planRepo().update({ code }, { isActive: false });
+    return ok(res, { deleted: false, deactivated: true, message: `该套餐已有 ${refOrder} 笔订单/订阅，已自动下架（不可物理删除）` });
+  }
+  // 无任何引用，物理删除
+  await planRepo().delete({ code });
+  return ok(res, { deleted: true });
 }));
 
 /* ---------- 用户 ---------- */
@@ -173,6 +188,26 @@ r.post('/admin/payment-channels/:provider/test-saved', adminAuth, handler(async 
   const pp = providerFor(provider);
   const test = await pp.testConnection(raw);
   return ok(res, { provider, reachable: test.success, items: test.items, message: test.message });
+}));
+
+/* ---------- 汇率配置 ---------- */
+r.get('/admin/fx-rates', adminAuth, handler(async (_req, res) => {
+  const current = await rateService.getRates();
+  return ok(res, { rates: current, defaults: DEFAULT_RATES });
+}));
+
+r.put('/admin/fx-rates', adminAuth, handler(async (req, res) => {
+  const b = req.body?.rates || {};
+  const current = await rateService.getRates();
+  // 仅允许更新已支持的币种，且需为大于 0 的数字
+  for (const cur of Object.keys(DEFAULT_RATES)) {
+    if (b[cur] !== undefined) {
+      const v = Number(b[cur]);
+      current[cur] = Number.isFinite(v) && v > 0 ? v : current[cur];
+    }
+  }
+  await systemConfigService.set('fx_rates', current, '人民币兑外币汇率（1 外币 = N 人民币）');
+  return ok(res, { rates: current });
 }));
 
 /* ---------- 审计 ---------- */

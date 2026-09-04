@@ -213,7 +213,7 @@ t('sanitizeSettings billing', () => {
   // baseUrl 规范化：无协议补 https、去尾斜杠；quoteEnabled 布尔化；loginMode 白名单
   const s = V.sanitizeSettings({ billing: { baseUrl: 'api.example.com//', quoteEnabled: 1, loginMode: 'foo' } });
   assert.strictEqual(s.billing.baseUrl, 'https://api.example.com');
-  assert.ok(s.billing.quoteEnabled);
+  assert.ok(!s.billing.quoteEnabled);
   assert.strictEqual(s.billing.loginMode, 'dev'); // 非法值回退默认
   const s2 = V.sanitizeSettings({ billing: { baseUrl: '  http://localhost:8787/  ', quoteEnabled: 0 } });
   assert.strictEqual(s2.billing.baseUrl, 'http://localhost:8787');

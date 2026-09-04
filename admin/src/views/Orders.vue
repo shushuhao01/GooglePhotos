@@ -41,9 +41,11 @@ async function replay(row: any) {
   catch (e: any) { ElMessage.error(e.message); }
 }
 async function refund(row: any) {
+  const yuan = (row.amountCents / 100).toFixed(2);
   try {
-    const { value } = await ElMessageBox.prompt('退款金额(分，默认全额=' + row.amountCents + ')', '退款', { inputValue: String(row.amountCents) });
-    await req('/admin/orders/' + row.orderNo + '/refund', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cents: Number(value) || row.amountCents }) });
+    const { value } = await ElMessageBox.prompt('退款金额(元，默认全额=' + yuan + ')', '退款', { inputValue: yuan });
+    const cents = Math.round(Number(value) * 100) || row.amountCents;
+    await req('/admin/orders/' + row.orderNo + '/refund', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cents }) });
     ElMessage.success('已退款'); load();
   } catch (e: any) { if (e !== 'cancel') ElMessage.error(e.message); }
 }
